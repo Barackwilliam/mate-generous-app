@@ -9,7 +9,7 @@ The admin creates, renames, reorders, publishes or archives categories, series a
 | Folder | What it is | Status |
 | --- | --- | --- |
 | `backend/` | Django + REST API + admin dashboard | Phase One built, 37 tests passing |
-| `mobile/` | Flutter Android app (iOS in Phase Two from the same code) | Next |
+| `mobile/` | Flutter Android app (iOS in Phase Two from the same code) | Reader, home, library, auth built; 5 tests passing |
 | `docs/` | Architecture, API and payment decisions | |
 
 ## Phase One scope (agreed)
@@ -51,6 +51,6 @@ Payments use the **sandbox** gateway until the real one is chosen. Sandbox numbe
 
 ## Deploy (staging)
 
-`render.yaml` sets up a Render web service and a Postgres database, with sandbox payments switched on for testing. The Android test build will go out through Codemagic (`codemagic.yaml`, added together with the Flutter app).
+`render.yaml` sets up a Render web service and a Postgres database, with sandbox payments switched on for testing. Android test builds run on Codemagic (`codemagic.yaml`): each push analyses, tests and builds a release APK, then emails it to testers.
 
 More detail is in [`docs/ARCHITECTURE.md`](docs/ARCHITECTURE.md), [`docs/API.md`](docs/API.md) and [`docs/PAYMENTS.md`](docs/PAYMENTS.md).
