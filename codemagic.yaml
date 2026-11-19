@@ -1,14 +1,16 @@
 # Codemagic CI/CD for the Mate Generous Android app.
-# Every push builds a release APK and emails it to the testers below.
+# Every push that touches mobile/ builds a release APK and emails it to the testers below.
+#
+# Free plan: a Personal account (not a Team) gets 500 free build minutes a month,
+# and only on macOS M2 machines. Linux machines are billed, so keep mac_mini_m2.
 workflows:
   android-test:
     name: Android test build
-    max_build_duration: 45
-    instance_type: linux_x2
+    max_build_duration: 30
+    instance_type: mac_mini_m2
     triggering:
       events:
         - push
-        - pull_request
       branch_patterns:
         - pattern: "*"
           include: true
