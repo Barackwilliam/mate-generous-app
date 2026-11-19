@@ -84,10 +84,14 @@ TEMPLATES = [
     },
 ]
 
+# Production uses Supabase Postgres through its *Session pooler* URL (IPv4,
+# port 5432). Render's free plan cannot reach Supabase's IPv6-only direct host.
 DATABASES = {
     "default": dj_database_url.config(
         default=f"sqlite:///{BASE_DIR / 'db.sqlite3'}",
         conn_max_age=600,
+        conn_health_checks=True,
+        ssl_require=os.environ.get("DATABASE_URL", "").startswith("postgres") and not DEBUG,
     )
 }
 

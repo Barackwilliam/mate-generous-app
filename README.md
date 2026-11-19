@@ -51,6 +51,6 @@ Payments use the **sandbox** gateway until the real one is chosen. Sandbox numbe
 
 ## Deploy (staging)
 
-`render.yaml` sets up a Render web service and a Postgres database, with sandbox payments switched on for testing. Android test builds run on Codemagic (`codemagic.yaml`): each push analyses, tests and builds a release APK, then emails it to testers.
+`render.yaml` sets up a free Render web service with sandbox payments switched on for testing. The database is a free Supabase Postgres; Render asks for its connection string (`DATABASE_URL`) when the Blueprint is created. Android test builds run on Codemagic (`codemagic.yaml`): each push analyses, tests and builds a release APK, then emails it to testers.
 
 More detail is in [`docs/ARCHITECTURE.md`](docs/ARCHITECTURE.md), [`docs/API.md`](docs/API.md) and [`docs/PAYMENTS.md`](docs/PAYMENTS.md).

@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:convert';
 
 import 'package:http/http.dart' as http;
@@ -20,6 +21,9 @@ class ApiClient {
   ApiClient({http.Client? client, String? baseUrl})
       : _http = client ?? http.Client(),
         _base = (baseUrl ?? AppConfig.apiBaseUrl).replaceAll(RegExp(r'/$'), '');
+
+  /// Long enough for a free Render server to wake up from sleep (~1 minute).
+  static const _timeout = Duration(seconds: 70);
 
   final http.Client _http;
   final String _base;
@@ -61,7 +65,9 @@ class ApiClient {
 
     final http.Response res;
     try {
-      res = await http.Response.fromStream(await _http.send(request).timeout(const Duration(seconds: 20)));
+      res = await http.Response.fromStream(await _http.send(request).timeout(_timeout));
+    } on TimeoutException {
+      throw ApiException('Seva inachelewa kujibu. Jaribu tena baada ya muda mfupi.');
     } catch (_) {
       throw ApiException('Hakuna mtandao. Jaribu tena.');
     }
