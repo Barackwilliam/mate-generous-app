@@ -1,0 +1,32 @@
+# Staging deployment on Render. Real payments stay off until a gateway is chosen.
+databases:
+  - name: mate-generous-db
+    plan: free
+
+services:
+  - type: web
+    name: mate-generous-api
+    runtime: python
+    rootDir: backend
+    buildCommand: pip install -r requirements.txt && python manage.py collectstatic --noinput && python manage.py migrate --noinput
+    startCommand: gunicorn config.wsgi:application --bind 0.0.0.0:$PORT
+    healthCheckPath: /health/
+    envVars:
+      - key: PYTHON_VERSION
+        value: 3.13.0
+      - key: DATABASE_URL
+        fromDatabase:
+          name: mate-generous-db
+          property: connectionString
+      - key: DJANGO_SECRET_KEY
+        generateValue: true
+      - key: PAYMENT_CALLBACK_SECRET
+        generateValue: true
+      - key: DJANGO_ALLOWED_HOSTS
+        value: mate-generous-api.onrender.com
+      - key: DJANGO_CSRF_TRUSTED_ORIGINS
+        value: https://mate-generous-api.onrender.com
+      - key: PAYMENT_GATEWAY
+        value: sandbox
+      - key: ALLOW_SANDBOX_PAYMENTS
+        value: "1"
