@@ -10,7 +10,7 @@ services:
     runtime: python
     plan: free
     rootDir: backend
-    buildCommand: pip install -r requirements.txt && python manage.py collectstatic --noinput && python manage.py migrate --noinput
+    buildCommand: pip install -r requirements.txt && python manage.py collectstatic --noinput && python manage.py migrate --noinput && (python manage.py createsuperuser --noinput || true)
     startCommand: gunicorn config.wsgi:application --bind 0.0.0.0:$PORT
     healthCheckPath: /health/
     envVars:
@@ -26,6 +26,14 @@ services:
         value: mate-generous-api.onrender.com
       - key: DJANGO_CSRF_TRUSTED_ORIGINS
         value: https://mate-generous-api.onrender.com
+      # First admin account, created on deploy (free plan has no Shell).
+      # Already exists → skipped. Change the password in the admin afterwards.
+      - key: DJANGO_SUPERUSER_EMAIL
+        sync: false
+      - key: DJANGO_SUPERUSER_FULL_NAME
+        sync: false
+      - key: DJANGO_SUPERUSER_PASSWORD
+        sync: false
       - key: PAYMENT_GATEWAY
         value: sandbox
       - key: ALLOW_SANDBOX_PAYMENTS
