@@ -17,7 +17,7 @@ The admin creates, renames, reorders, publishes or archives categories, series a
 | # | Item | Where |
 | --- | --- | --- |
 | 1 | UI/UX design: app and admin | `mobile/`, admin theme (Unfold) |
-| 2 | App contents: home, reader, categories & series, My Library, bookmarks & favourites, dark mode, font size | API ready; app next |
+| 2 | App contents: home, reader, categories & series, My Library, bookmarks & favourites, dark mode, font size | `mobile/lib/screens/` |
 | 3 | Secure backend & API | `backend/` |
 | 4 | Admin dashboard: users, devotionals, categories, series, audio, subscriptions, publishing & archiving | `/admin/` |
 | 5 | Registration & My Library: login, profile, saved content, reading history | `/api/auth/`, `/api/library/` |
