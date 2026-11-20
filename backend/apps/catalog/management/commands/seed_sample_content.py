@@ -1,10 +1,11 @@
 """Sample content so a fresh install is not empty.
 
     python manage.py seed_sample_content            # add / refresh the samples
-    python manage.py seed_sample_content --if-empty # only when there is no content yet (used on deploy)
+    python manage.py seed_sample_content --once     # only if samples were never added (used on deploy)
 
 Every sample is an ordinary row: the admin can edit, archive or delete it. With
---if-empty a deleted sample never comes back on the next deploy.
+--once a deleted sample never comes back on the next deploy (the sample author
+"mate-sample" marks that samples were added).
 """
 
 from datetime import timedelta
@@ -199,12 +200,12 @@ class Command(BaseCommand):
     help = "Add sample categories styling, authors, series and devotionals."
 
     def add_arguments(self, parser):
-        parser.add_argument("--if-empty", action="store_true", help="Do nothing if any content already exists.")
+        parser.add_argument("--once", action="store_true", help="Do nothing if samples were added before.")
 
     @transaction.atomic
     def handle(self, *args, **opts):
-        if opts["if_empty"] and Content.objects.exists():
-            self.stdout.write("Content already exists; samples skipped.")
+        if opts["once"] and Author.objects.filter(slug="mate-sample").exists():
+            self.stdout.write("Samples were added before; skipped.")
             return
 
         for slug, (name_en, color, icon) in CATEGORY_STYLE.items():
