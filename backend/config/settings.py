@@ -112,8 +112,51 @@ STATIC_URL = "static/"
 STATIC_ROOT = BASE_DIR / "staticfiles"
 MEDIA_URL = "media/"
 MEDIA_ROOT = BASE_DIR / "media"
+# --- Media storage: Supabase Storage buckets (S3 API) in production --------
+# Supabase dashboard → Storage → S3 Connection gives the endpoint, region and
+# access keys. Create two buckets: one PUBLIC (images), one PRIVATE (audio).
+SUPABASE_S3_ENDPOINT = os.environ.get("SUPABASE_S3_ENDPOINT", "")  # https://<ref>.supabase.co/storage/v1/s3
+SUPABASE_PUBLIC_BUCKET = os.environ.get("SUPABASE_PUBLIC_BUCKET", "media-public")
+SUPABASE_PRIVATE_BUCKET = os.environ.get("SUPABASE_PRIVATE_BUCKET", "media-private")
+SIGNED_URL_SECONDS = int(os.environ.get("SIGNED_URL_SECONDS", "3600"))
+
+if SUPABASE_S3_ENDPOINT:
+    _s3 = {
+        "endpoint_url": SUPABASE_S3_ENDPOINT,
+        "region_name": os.environ.get("SUPABASE_S3_REGION", "us-east-1"),
+        "access_key": os.environ.get("SUPABASE_S3_ACCESS_KEY_ID", ""),
+        "secret_key": os.environ.get("SUPABASE_S3_SECRET_ACCESS_KEY", ""),
+        "signature_version": "s3v4",
+        "addressing_style": "path",
+        "file_overwrite": False,
+        "default_acl": None,
+    }
+    _project_host = SUPABASE_S3_ENDPOINT.split("://", 1)[-1].split("/", 1)[0]
+    _public_storage = {
+        "BACKEND": "storages.backends.s3.S3Storage",
+        "OPTIONS": {
+            **_s3,
+            "bucket_name": SUPABASE_PUBLIC_BUCKET,
+            "querystring_auth": False,
+            # Public objects are served at /storage/v1/object/public/<bucket>/<key>
+            "custom_domain": f"{_project_host}/storage/v1/object/public/{SUPABASE_PUBLIC_BUCKET}",
+        },
+    }
+    _private_storage = {
+        "BACKEND": "storages.backends.s3.S3Storage",
+        "OPTIONS": {**_s3, "bucket_name": SUPABASE_PRIVATE_BUCKET, "querystring_auth": True,
+                    "querystring_expire": SIGNED_URL_SECONDS},
+    }
+else:
+    _public_storage = {"BACKEND": "django.core.files.storage.FileSystemStorage",
+                       "OPTIONS": {"location": BASE_DIR / "media" / "public", "base_url": "/media/public/"}}
+    _private_storage = {"BACKEND": "django.core.files.storage.FileSystemStorage",
+                        "OPTIONS": {"location": BASE_DIR / "media" / "private", "base_url": "/media/private/"}}
+
 STORAGES = {
-    "default": {"BACKEND": "django.core.files.storage.FileSystemStorage"},
+    "default": _public_storage,
+    "public": _public_storage,
+    "private": _private_storage,
     "staticfiles": {
         "BACKEND": (
             "django.contrib.staticfiles.storage.StaticFilesStorage"

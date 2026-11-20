@@ -73,7 +73,8 @@ class ReaderAccessTests(APITestCase):
         self.assertEqual(self.client.get(f"/api/contents/{self.locked.slug}/audio/").status_code, 403)
         create_subscription(self.reader, f.plan(), source="manual")
         r = self.client.get(f"/api/contents/{self.locked.slug}/audio/")
-        self.assertEqual(r.status_code, 302)
+        self.assertEqual(r.status_code, 200)
+        self.assertEqual(r.json()["url"], "https://cdn.example.com/a.mp3")
 
     def test_list_never_includes_body(self):
         rows = self.client.get("/api/contents/").json()["results"]

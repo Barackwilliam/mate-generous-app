@@ -20,7 +20,7 @@ Base URL: `/api/`. Send `Authorization: Bearer <access token>` once the user is 
 | GET | `series/<slug>/contents/` | items in series order |
 | GET | `contents/` | cards. Filters: `q`, `category`, `series`, `author`, `topic`, `kind`, `has_audio=1` |
 | GET | `contents/<slug>/` | reader: `body`, `application`, `prayer`, `navigation.previous/next`, `share`, `user_state`; locked items get `preview` + `unlock` instead |
-| GET | `contents/<slug>/audio/` | 302 to the audio after an access check, 403 if locked |
+| GET | `contents/<slug>/audio/` | `{url, expires_in}` after an access check (signed Supabase link), 403 if locked |
 | GET | `share/<slug>/` | public data for the shared-link web page (excerpt only) |
 
 `q` searches title, Scripture reference, summary, text, series, topic and author. Locked items still show in results with `is_locked: true` so users can see what a subscription opens; their text is never returned.
@@ -28,7 +28,7 @@ Base URL: `/api/`. Send `Authorization: Bearer <access token>` once the user is 
 ## My Library
 | Method | Path | Notes |
 | --- | --- | --- |
-| GET | `library/` | `bookmarks, favourites, owned_items, owned_series, history` |
+| GET | `library/` | `stats {streak_days, completed, saved}, bookmarks, favourites, owned_items, owned_series, history` |
 | PUT/DELETE | `library/<slug>/bookmark/` | save or remove |
 | PUT/DELETE | `library/<slug>/favourite/` | save or remove |
 | PUT | `library/<slug>/progress/` | `percent?, audio_position_seconds?, completed?` |

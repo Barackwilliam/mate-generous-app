@@ -11,6 +11,8 @@ from django.db.models import Q
 from django.utils import timezone
 from django.utils.text import slugify
 
+from .storage import private_storage, public_storage
+
 
 class PublishStatus(models.TextChoices):
     DRAFT = "draft", "Draft"
@@ -44,10 +46,13 @@ class Category(SlugMixin, models.Model):
     slug_source = "name"
 
     name = models.CharField(max_length=120)
+    name_en = models.CharField("Name (English)", max_length=120, blank=True,
+                               help_text="Shown when the app is in English. Empty → the Swahili name.")
     slug = models.SlugField(max_length=200, unique=True, blank=True)
     description = models.TextField(blank=True)
+    description_en = models.TextField("Description (English)", blank=True)
     icon = models.CharField(max_length=60, blank=True, help_text="Material icon name, e.g. nights_stay")
-    cover_image = models.ImageField(upload_to="categories/", blank=True)
+    cover_image = models.ImageField(upload_to="categories/", storage=public_storage, blank=True)
     accent_color = models.CharField(max_length=7, blank=True, help_text="Hex colour, e.g. #1F3A5F")
     is_flagship = models.BooleanField(
         default=False,
@@ -76,7 +81,7 @@ class Author(SlugMixin, models.Model):
     slug = models.SlugField(max_length=200, unique=True, blank=True)
     title = models.CharField(max_length=150, blank=True, help_text="e.g. Pastor, Elder")
     bio = models.TextField(blank=True)
-    photo = models.ImageField(upload_to="authors/", blank=True)
+    photo = models.ImageField(upload_to="authors/", storage=public_storage, blank=True)
 
     class Meta:
         ordering = ["name"]
@@ -103,7 +108,7 @@ class Series(SlugMixin, models.Model):
     title = models.CharField(max_length=200)
     slug = models.SlugField(max_length=200, unique=True, blank=True)
     description = models.TextField(blank=True)
-    cover_image = models.ImageField(upload_to="series/", blank=True)
+    cover_image = models.ImageField(upload_to="series/", storage=public_storage, blank=True)
     author = models.ForeignKey(Author, null=True, blank=True, on_delete=models.SET_NULL, related_name="series")
     access_level = models.CharField(
         max_length=12,
@@ -157,7 +162,7 @@ class Content(SlugMixin, models.Model):
     order_in_series = models.PositiveIntegerField(default=0)
     author = models.ForeignKey(Author, null=True, blank=True, on_delete=models.SET_NULL, related_name="contents")
     topics = models.ManyToManyField(Topic, blank=True, related_name="contents")
-    cover_image = models.ImageField(upload_to="content/", blank=True)
+    cover_image = models.ImageField(upload_to="content/", storage=public_storage, blank=True)
 
     scripture_reference = models.CharField(max_length=120, blank=True, help_text="e.g. Zaburi 30:5")
     scripture_text = models.TextField(blank=True)
@@ -166,7 +171,8 @@ class Content(SlugMixin, models.Model):
     application = models.TextField(blank=True, help_text="Practical application.")
     prayer = models.TextField(blank=True)
 
-    audio_file = models.FileField(upload_to="audio/", blank=True)
+    audio_file = models.FileField(upload_to="audio/", storage=private_storage, blank=True,
+                                  help_text="Stored in the private bucket; listeners get a short-lived link.")
     audio_url = models.URLField(blank=True, help_text="Use instead of uploading if the audio is hosted elsewhere.")
     audio_duration_seconds = models.PositiveIntegerField(null=True, blank=True)
 

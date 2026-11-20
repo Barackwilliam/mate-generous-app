@@ -1,5 +1,6 @@
+from django.conf import settings
 from django.db.models import Count, Q
-from django.shortcuts import get_object_or_404, redirect
+from django.shortcuts import get_object_or_404
 from django.utils import timezone
 from rest_framework import viewsets
 from rest_framework.decorators import action
@@ -116,14 +117,19 @@ class ContentViewSet(EntitlementContextMixin, viewsets.ReadOnlyModelViewSet):
 
     @action(detail=True)
     def audio(self, request, slug=None):
-        """Hand out the audio only after checking access. In production, storage
-        should be a private bucket so this redirect is a short-lived signed URL."""
+        """Hand out the audio only after checking access. Uploaded audio sits in
+        the private Supabase bucket, so the URL returned is signed and expires."""
         content = self.get_object()
         if not content.has_audio:
             return Response(status=404)
         if not entitlements.for_user(request.user).can_open(content):
             raise PermissionDenied("Fungua kwa usajili ili kusikiliza.")
-        return redirect(content.audio_file.url if content.audio_file else content.audio_url)
+        url = content.audio_file.url if content.audio_file else content.audio_url
+        return Response({
+            "url": request.build_absolute_uri(url),
+            "expires_in": settings.SIGNED_URL_SECONDS if content.audio_file else None,
+            "duration_seconds": content.audio_duration_seconds,
+        })
 
 
 class HomeView(APIView):

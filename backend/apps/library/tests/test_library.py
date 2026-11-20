@@ -33,3 +33,23 @@ class LibraryTests(APITestCase):
     def test_library_requires_login(self):
         self.client.force_authenticate(None)
         self.assertEqual(self.client.get("/api/library/").status_code, 401)
+
+
+class StatsTests(APITestCase):
+    def test_streak_and_counts(self):
+        from datetime import timedelta
+
+        from django.utils import timezone
+
+        from apps.library.models import ReadingDay
+
+        reader = f.user()
+        today = timezone.localdate()
+        for d in (1, 2, 4):
+            ReadingDay.objects.create(user=reader, date=today - timedelta(days=d))
+        self.client.force_authenticate(reader)
+        item = f.content()
+        self.client.put(f"/api/library/{item.slug}/progress/", {"percent": 100}, format="json")
+        self.client.put(f"/api/library/{item.slug}/favourite/")
+        stats = self.client.get("/api/library/").json()["stats"]
+        self.assertEqual(stats, {"streak_days": 3, "completed": 1, "saved": 1})

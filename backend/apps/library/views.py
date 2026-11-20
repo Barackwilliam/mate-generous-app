@@ -1,4 +1,5 @@
 from django.shortcuts import get_object_or_404
+from django.utils import timezone
 from rest_framework import permissions, serializers, status
 from rest_framework.response import Response
 from rest_framework.views import APIView
@@ -8,7 +9,7 @@ from apps.catalog.serializers import ContentCardSerializer, SeriesSerializer
 from apps.subscriptions import entitlements
 from apps.subscriptions.models import Purchase
 
-from .models import ReadingProgress, SavedItem
+from .models import ReadingDay, ReadingProgress, SavedItem, streak_for
 
 
 def _cards(request, contents):
@@ -39,6 +40,11 @@ class LibraryView(APIView):
         )
         ctx = {"request": request, "entitlements": entitlements.for_user(user)}
         return Response({
+            "stats": {
+                "streak_days": streak_for(user, timezone.localdate()),
+                "completed": ReadingProgress.objects.filter(user=user, completed=True).count(),
+                "saved": SavedItem.objects.filter(user=user).count(),
+            },
             "bookmarks": saved(SavedItem.Kind.BOOKMARK),
             "favourites": saved(SavedItem.Kind.FAVOURITE),
             "owned_items": _cards(request, [p.content for p in purchases if p.content_id]),
@@ -91,4 +97,5 @@ class ProgressView(APIView):
         if progress.percent >= 100:
             progress.completed = True
         progress.save()
+        ReadingDay.objects.get_or_create(user=request.user, date=timezone.localdate())
         return Response(status=status.HTTP_204_NO_CONTENT)

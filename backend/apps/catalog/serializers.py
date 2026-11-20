@@ -16,7 +16,8 @@ class CategorySerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Category
-        fields = ("id", "name", "slug", "description", "icon", "accent_color", "cover_image", "is_flagship", "order")
+        fields = ("id", "name", "name_en", "slug", "description", "description_en", "icon", "accent_color",
+                  "cover_image", "is_flagship", "order")
 
     def get_cover_image(self, obj):
         return _media_url(self.context.get("request"), obj.cover_image)
@@ -25,7 +26,7 @@ class CategorySerializer(serializers.ModelSerializer):
 class CategoryRefSerializer(serializers.ModelSerializer):
     class Meta:
         model = Category
-        fields = ("id", "name", "slug")
+        fields = ("id", "name", "name_en", "slug", "icon", "accent_color")
 
 
 class AuthorSerializer(serializers.ModelSerializer):
