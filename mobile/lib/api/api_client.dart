@@ -67,9 +67,9 @@ class ApiClient {
     try {
       res = await http.Response.fromStream(await _http.send(request).timeout(_timeout));
     } on TimeoutException {
-      throw ApiException('Seva inachelewa kujibu. Jaribu tena baada ya muda mfupi.');
+      throw ApiException('slow');
     } catch (_) {
-      throw ApiException('Hakuna mtandao. Jaribu tena.');
+      throw ApiException('offline');
     }
 
     if (res.statusCode == 401 && retry && _refresh != null && await _refreshAccess()) {
@@ -128,17 +128,23 @@ class ApiClient {
 
   Future<AppUser> me() async => AppUser.fromJson(await _send('GET', 'auth/me/'));
 
+  Future<AppUser> updateMe({required String fullName, String? phone}) async => AppUser.fromJson(
+      await _send('PATCH', 'auth/me/', body: {'full_name': fullName, 'phone': (phone ?? '').isEmpty ? null : phone}));
+
   // ---- Content
   Future<HomeData> home() async => HomeData.fromJson(await _send('GET', 'home/'));
 
   Future<List<Category>> categories() async =>
       ((await _send('GET', 'categories/')) as List).map((e) => Category.fromJson(e)).toList();
 
-  Future<List<ContentCard>> contents({String? query, String? category, String? series}) async {
+  Future<List<ContentCard>> contents({String? query, String? category, String? series, String? kind, String? topic, bool audioOnly = false}) async {
     final data = await _send('GET', 'contents/', query: {
       if (query != null && query.isNotEmpty) 'q': query,
       'category': ?category,
       'series': ?series,
+      'kind': ?kind,
+      'topic': ?topic,
+      if (audioOnly) 'has_audio': '1',
     });
     return (data['results'] as List).map((e) => ContentCard.fromJson(e)).toList();
   }
@@ -148,6 +154,17 @@ class ApiClient {
     return (data['results'] as List).map((e) => SeriesInfo.fromJson(e)).toList();
   }
 
+  Future<List<Topic>> topics() async =>
+      ((await _send('GET', 'topics/')) as List).map((e) => Topic.fromJson(e)).toList();
+
+  /// A playable link for the audio; for uploaded files it is signed and expires.
+  Future<String> audioUrl(String slug) async => (await _send('GET', 'contents/$slug/audio/'))['url'] as String;
+
+  Future<List<Plan>> plans() async =>
+      ((await _send('GET', 'subscriptions/plans/')) as List).map((e) => Plan.fromJson(e)).toList();
+
+  Future<Access> access() async => Access.fromJson(await _send('GET', 'subscriptions/me/'));
+
   Future<ContentDetail> content(String slug) async => ContentDetail.fromJson(await _send('GET', 'contents/$slug/'));
 
   // ---- Library
@@ -156,6 +173,9 @@ class ApiClient {
   Future<void> setSaved(String slug, String kind, bool saved) =>
       _send(saved ? 'PUT' : 'DELETE', 'library/$slug/$kind/');
 
-  Future<void> reportProgress(String slug, int percent) =>
-      _send('PUT', 'library/$slug/progress/', body: {'percent': percent});
+  Future<void> reportProgress(String slug, {int? percent, int? audioSeconds}) =>
+      _send('PUT', 'library/$slug/progress/', body: {
+        'percent': ?percent,
+        'audio_position_seconds': ?audioSeconds,
+      });
 }

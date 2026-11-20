@@ -1,7 +1,8 @@
 from django.conf import settings
+from django.utils.html import strip_tags
 from rest_framework import serializers
 
-from .models import Author, Category, Content, Series
+from .models import Author, Category, Content, Series, Topic
 
 
 def _media_url(request, field):
@@ -27,6 +28,12 @@ class CategoryRefSerializer(serializers.ModelSerializer):
     class Meta:
         model = Category
         fields = ("id", "name", "name_en", "slug", "icon", "accent_color")
+
+
+class TopicSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Topic
+        fields = ("id", "name", "slug")
 
 
 class AuthorSerializer(serializers.ModelSerializer):
@@ -71,12 +78,18 @@ class ContentCardSerializer(serializers.ModelSerializer):
     access_level = serializers.CharField(source="effective_access_level")
     has_audio = serializers.BooleanField()
     is_locked = serializers.SerializerMethodField()
+    read_minutes = serializers.SerializerMethodField()
 
     class Meta:
         model = Content
         fields = ("id", "slug", "kind", "title", "category", "series", "author", "cover_image",
                   "scripture_reference", "summary", "has_audio", "audio_duration_seconds",
-                  "access_level", "price", "is_locked", "publish_at")
+                  "access_level", "price", "is_locked", "publish_at", "read_minutes")
+
+    def get_read_minutes(self, obj):
+        """About 180 words a minute for devotional reading."""
+        words = len(strip_tags(" ".join([obj.body, obj.application, obj.prayer])).split())
+        return max(1, round(words / 180))
 
     def get_cover_image(self, obj):
         return _media_url(self.context.get("request"), obj.cover_image)

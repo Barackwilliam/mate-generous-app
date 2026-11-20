@@ -8,9 +8,11 @@ The admin creates, renames, reorders, publishes or archives categories, series a
 
 | Folder | What it is | Status |
 | --- | --- | --- |
-| `backend/` | Django + REST API + admin dashboard | Phase One built, 37 tests passing |
-| `mobile/` | Flutter Android app (iOS in Phase Two from the same code) | Reader, home, library, auth built; 5 tests passing |
+| `backend/` | Django + REST API + admin dashboard, media on Supabase Storage | Phase One built, 41 tests passing |
+| `mobile/` | Flutter Android app (iOS in Phase Two from the same code) | All Phase One screens in the new design, Swahili/English, audio player; 12 tests passing |
 | `docs/` | Architecture, API and payment decisions | |
+
+![Home](docs/screenshots/1_home.png)
 
 ## Phase One scope (agreed)
 

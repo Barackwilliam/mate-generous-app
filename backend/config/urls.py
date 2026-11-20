@@ -10,6 +10,7 @@ from apps.catalog import views as catalog
 router = DefaultRouter()
 router.register("categories", catalog.CategoryViewSet, basename="category")
 router.register("series", catalog.SeriesViewSet, basename="series")
+router.register("topics", catalog.TopicViewSet, basename="topic")
 router.register("contents", catalog.ContentViewSet, basename="content")
 
 urlpatterns = [

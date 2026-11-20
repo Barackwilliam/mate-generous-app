@@ -31,3 +31,9 @@ class SeedTests(APITestCase):
         Content.objects.filter(slug="nuru-gizani").delete()
         call_command("seed_sample_content", "--once", stdout=StringIO())
         self.assertFalse(Content.objects.filter(slug="nuru-gizani").exists())
+
+    def test_topics_endpoint_lists_used_topics(self):
+        call_command("seed_sample_content", stdout=StringIO())
+        names = [t["name"] for t in self.client.get("/api/topics/").json()]
+        self.assertIn("Tumaini", names)
+        self.assertNotIn("", names)

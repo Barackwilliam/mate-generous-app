@@ -15,7 +15,8 @@ Base URL: `/api/`. Send `Authorization: Bearer <access token>` once the user is 
 | Method | Path | Notes |
 | --- | --- | --- |
 | GET | `home/` | `tonight` (full reader payload), `sections[]` in admin order, `access` |
-| GET | `categories/` | active categories in admin order |
+| GET | `categories/` | active categories in admin order (with `name_en`, `accent_color`, `icon`) |
+| GET | `topics/` | topics in use, most used first |
 | GET | `series/?category__slug=` | series with `item_count` |
 | GET | `series/<slug>/contents/` | items in series order |
 | GET | `contents/` | cards. Filters: `q`, `category`, `series`, `author`, `topic`, `kind`, `has_audio=1` |

@@ -1,5 +1,6 @@
 package com.mategenerous.mate_generous
 
-import io.flutter.embedding.android.FlutterActivity
+import com.ryanheise.audioservice.AudioServiceActivity
 
-class MainActivity : FlutterActivity()
+// AudioServiceActivity lets audio keep playing with lock-screen controls.
+class MainActivity : AudioServiceActivity()

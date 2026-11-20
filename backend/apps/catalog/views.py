@@ -11,12 +11,13 @@ from rest_framework.views import APIView
 from apps.library.models import ReadingProgress, SavedItem
 from apps.subscriptions import entitlements
 
-from .models import Category, Content, HomeSection, PublishStatus, Series
+from .models import Category, Content, HomeSection, PublishStatus, Series, Topic
 from .serializers import (
     CategorySerializer,
     ContentCardSerializer,
     ContentDetailSerializer,
     SeriesSerializer,
+    TopicSerializer,
 )
 
 CONTENT_RELATED = ("category", "series", "author")
@@ -34,6 +35,22 @@ class CategoryViewSet(viewsets.ReadOnlyModelViewSet):
     lookup_field = "slug"
     pagination_class = None
     queryset = Category.objects.filter(status=PublishStatus.PUBLISHED)
+
+
+class TopicViewSet(viewsets.ReadOnlyModelViewSet):
+    """Topics that have published content, most used first (search suggestions)."""
+
+    serializer_class = TopicSerializer
+    lookup_field = "slug"
+    pagination_class = None
+
+    def get_queryset(self):
+        published = Content.objects.published()
+        return (
+            Topic.objects.filter(contents__in=published)
+            .annotate(uses=Count("contents", distinct=True))
+            .order_by("-uses", "name")[:20]
+        )
 
 
 class SeriesViewSet(EntitlementContextMixin, viewsets.ReadOnlyModelViewSet):
