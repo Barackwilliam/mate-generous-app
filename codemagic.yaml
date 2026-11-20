@@ -22,6 +22,8 @@ workflows:
           - "codemagic.yaml"
     environment:
       flutter: stable
+      groups:
+        - android_signing  # CM_KEYSTORE (base64), CM_KEYSTORE_PASSWORD, CM_KEY_ALIAS, CM_KEY_PASSWORD
       vars:
         # The deployed staging backend (see render.yaml). Change it here if the URL differs.
         API_BASE_URL: https://mate-generous-api.onrender.com
@@ -35,12 +37,33 @@ workflows:
       - name: Tests
         working_directory: mobile
         script: flutter test
+      - name: Set up release signing
+        script: |
+          if [ -z "$CM_KEYSTORE" ]; then
+            echo "Missing the android_signing variables: every build must use the same key." >&2
+            exit 1
+          fi
+          echo "$CM_KEYSTORE" | base64 --decode > "$CM_BUILD_DIR/mobile/android/upload.jks"
+          cat > "$CM_BUILD_DIR/mobile/android/key.properties" <<PROPS
+          storeFile=$CM_BUILD_DIR/mobile/android/upload.jks
+          storePassword=$CM_KEYSTORE_PASSWORD
+          keyAlias=$CM_KEY_ALIAS
+          keyPassword=$CM_KEY_PASSWORD
+          PROPS
       - name: Build APK
         working_directory: mobile
         script: |
           flutter build apk --release \
             --build-number=$BUILD_NUMBER \
             --dart-define=API_BASE_URL=$API_BASE_URL
+      - name: Check the APK is signed with the app's permanent key
+        script: |
+          EXPECTED="5E:64:B7:6F:82:C7:87:0E:87:09:63:B7:8A:50:41:FB:5B:FB:54:89:2E:BE:76:6D:E8:44:78:B5:9E:86:54:7E"
+          APKSIGNER=$(ls -d "${ANDROID_SDK_ROOT:-$ANDROID_HOME}"/build-tools/*/apksigner | sort -V | tail -1)
+          ACTUAL=$("$APKSIGNER" verify --print-certs mobile/build/app/outputs/flutter-apk/app-release.apk \
+            | grep -m1 "SHA-256 digest" | awk '{print toupper($NF)}' | sed 's/../&:/g; s/:$//')
+          echo "Signed with: $ACTUAL"
+          [ "$ACTUAL" = "$EXPECTED" ] || { echo "APK is not signed with the permanent key." >&2; exit 1; }
     artifacts:
       - mobile/build/app/outputs/flutter-apk/*.apk
     publishing:
