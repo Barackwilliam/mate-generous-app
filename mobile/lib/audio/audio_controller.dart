@@ -90,6 +90,11 @@ class AudioController extends ChangeNotifier {
     notifyListeners();
   }
 
+  Future<void> setSpeed(double value) async {
+    await player.setSpeed(value);
+    notifyListeners();
+  }
+
   Future<void> playSlug(String slug) async => play(await api.content(slug));
 
   Future<void> _saveProgress({bool finished = false}) async {

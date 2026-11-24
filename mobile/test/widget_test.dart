@@ -4,6 +4,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:http/http.dart' as http;
 import 'package:http/testing.dart';
 import 'package:mate_generous/api/api_client.dart';
+import 'package:mate_generous/api/cache_store.dart';
 import 'package:mate_generous/audio/audio_controller.dart';
 import 'package:mate_generous/main.dart';
 import 'package:mate_generous/screens/account_screen.dart';
@@ -70,9 +71,14 @@ final routes = <String, Object>{
   ],
 };
 
-ApiClient fakeApi() => ApiClient(
+int requests = 0;
+
+ApiClient fakeApi({CacheStore? cache, bool offline = false}) => ApiClient(
       baseUrl: 'https://api.test',
+      cache: cache ?? MemoryCacheStore(),
       client: MockClient((req) async {
+        requests++;
+        if (offline) throw http.ClientException('no network');
         final body = routes[req.url.path];
         if (body == null) return http.Response('{"detail":"Not found"}', 404);
         return http.Response.bytes(utf8.encode(jsonEncode(body)), 200, headers: {'content-type': 'application/json; charset=utf-8'});
@@ -113,9 +119,10 @@ void main() {
     await tester.pumpWidget(wrap(state, const MateGenerousApp()));
     await tester.pumpAndSettle();
 
-    expect(find.text('UJUMBE WA USIKU HUU'), findsOneWidget);
+    expect(find.text('Kesha la Usiku'), findsWidgets);
     expect(find.text('Kilio Hudumu Usiku Mmoja'), findsOneWidget);
     expect(find.text('Soma · dk 6'), findsOneWidget);
+    expect(find.text('Zaburi 30:5'), findsWidgets);
     expect(find.text('Jumbe za karibuni'), findsOneWidget);
     expect(find.text('Nyumbani'), findsOneWidget);
     expect(find.text('Maktaba'), findsOneWidget);
@@ -129,7 +136,7 @@ void main() {
 
     await tester.tap(find.text('EN').first);
     await tester.pumpAndSettle();
-    expect(find.text("TONIGHT'S MESSAGE"), findsOneWidget);
+    expect(find.text('Good evening').evaluate().isNotEmpty || find.text('Good morning').evaluate().isNotEmpty || find.text('Good afternoon').evaluate().isNotEmpty, isTrue);
     expect(find.text('Read · 6 min'), findsOneWidget);
     expect(find.text('Latest messages'), findsOneWidget);
     expect(find.text('Home'), findsOneWidget);
@@ -143,9 +150,9 @@ void main() {
     final state = await appState();
     await tester.pumpWidget(page(state, const ReaderScreen(slug: 'leo')));
     await tester.pumpAndSettle();
-    expect(find.text('Zaburi 30:5'), findsOneWidget);
-    expect(find.text('MATUMIZI YA VITENDO'), findsOneWidget);
-    expect(find.text('SALA'), findsOneWidget);
+    expect(find.text('– Zaburi 30:5 –'), findsOneWidget);
+    expect(find.text('Matumizi ya vitendo'), findsOneWidget);
+    expect(find.text('Sala'), findsOneWidget);
     expect(find.text('Nuru Gizani'), findsOneWidget);
   });
 
@@ -156,7 +163,7 @@ void main() {
     await tester.pumpAndSettle();
     expect(find.text('Kipande cha bure.'), findsOneWidget);
     expect(find.text('Ujumbe huu ni kwa wanachama wa Premium.'), findsOneWidget);
-    expect(find.text('SALA'), findsNothing);
+    expect(find.text('Sala'), findsNothing);
     expect(find.text('Ingia au jisajili'), findsOneWidget);
   });
 
@@ -168,7 +175,7 @@ void main() {
     await tester.tap(find.byTooltip('Hifadhi'));
     await tester.pumpAndSettle();
     expect(find.text('Barua pepe au namba ya simu'), findsOneWidget);
-    expect(find.text('Karibu tena'), findsOneWidget);
+    expect(find.text('Karibu tena!'), findsOneWidget);
   });
 
   testWidgets('explore lists the flagship first, then departments and topics', (tester) async {
@@ -191,7 +198,7 @@ void main() {
     await tester.pumpAndSettle();
     await tester.tap(find.text('Maktaba'));
     await tester.pumpAndSettle();
-    expect(find.text('Maktaba Yangu'), findsOneWidget);
+    expect(find.text('Maktaba Yangu'), findsWidgets);
     expect(find.text('Ingia au jisajili'), findsOneWidget);
   });
 
@@ -200,9 +207,12 @@ void main() {
     final state = await appState();
     await tester.pumpWidget(page(state, const PlansScreen()));
     await tester.pumpAndSettle();
-    expect(find.text('TSh 5,000'), findsOneWidget);
+    expect(find.text('Tsh 5,000'), findsOneWidget);
     expect(find.text('Bei inakuja'), findsOneWidget);
-    expect(find.text('MAARUFU'), findsOneWidget);
+    expect(find.text('BEST VALUE'), findsOneWidget);
+    expect(find.text('Tsh 0'), findsOneWidget);
+    await tester.tap(find.text('Jiunge Sasa'));
+    await tester.pumpAndSettle();
     expect(find.text('Malipo yanakuja hivi karibuni'), findsOneWidget);
   });
 
@@ -245,6 +255,42 @@ void main() {
       expect(tester.takeException(), isNull);
     });
   }
+
+  test('offline-first: a saved copy is served when the server is unreachable', () async {
+    SharedPreferences.setMockInitialValues({});
+    final cache = MemoryCacheStore();
+    await fakeApi(cache: cache).home(); // first run online: saved on the phone
+    final offline = fakeApi(cache: cache, offline: true);
+    final home = await offline.home();
+    expect(home.tonight!.title, 'Kilio Hudumu Usiku Mmoja');
+  });
+
+  test('prefetch downloads home, departments and every message for offline reading', () async {
+    SharedPreferences.setMockInitialValues({});
+    final cache = MemoryCacheStore();
+    routes['/api/contents/'] = {'next': null, 'results': [card('leo', 'Kilio Hudumu Usiku Mmoja'), card('funge', 'Nuru Gizani')]};
+    routes['/api/series/'] = {'next': null, 'results': []};
+    await fakeApi(cache: cache).prefetch();
+    final offline = fakeApi(cache: cache, offline: true);
+    expect((await offline.categories()).length, 2);
+    expect((await offline.content('funge')).title, 'Nuru Gizani');
+    expect((await offline.content('leo')).prayer, isNotNull);
+  });
+
+  test('a saved copy shows at once, and a newer server answer is announced', () async {
+    SharedPreferences.setMockInitialValues({});
+    final cache = MemoryCacheStore();
+    final api = fakeApi(cache: cache);
+    await api.categories();
+    await cache.write('g:categories/', '[]'); // pretend the saved copy is old
+    final fresh = fakeApi(cache: cache);
+    var ticks = 0;
+    fresh.revision.addListener(() => ticks++);
+    expect(await fresh.categories(), isEmpty); // instant, from the phone
+    await Future<void>.delayed(const Duration(milliseconds: 50));
+    expect(ticks, 1); // background refresh found the newer list
+    expect((await fresh.categories()).length, 2);
+  });
 
   test('font size stays within limits and is remembered', () async {
     final state = await appState();

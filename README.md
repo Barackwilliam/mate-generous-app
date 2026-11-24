@@ -8,8 +8,8 @@ The admin creates, renames, reorders, publishes or archives categories, series a
 
 | Folder | What it is | Status |
 | --- | --- | --- |
-| `backend/` | Django + REST API + admin dashboard, media on Supabase Storage | Phase One built, 41 tests passing |
-| `mobile/` | Flutter Android app (iOS in Phase Two from the same code) | All Phase One screens in the new design, Swahili/English, audio player; 12 tests passing |
+| `backend/` | Django + REST API + admin dashboard, media on Supabase Storage | Phase One built, 46 tests passing |
+| `mobile/` | Flutter Android app (iOS in Phase Two from the same code) | Approved template design, offline-first cache, Swahili/English, audio player, forgot password; 15 tests passing |
 | `docs/` | Architecture, API and payment decisions | |
 
 ![Home](docs/screenshots/1_home.png)
@@ -50,6 +50,12 @@ cd backend && DJANGO_DEBUG=1 python manage.py test
 ```
 
 Payments use the **sandbox** gateway until the real one is chosen. Sandbox numbers ending in `0000` fail, and every other number succeeds.
+
+## Speed and offline use
+
+The app is offline-first. On first launch it downloads home, departments, plans and the latest 60 messages in full, then every screen opens from the phone instantly and refreshes quietly in the background. If the server is asleep or there is no network, saved content still opens. Images are cached on the phone too.
+
+Keep the free Render server awake with [UptimeRobot](https://uptimerobot.com): an HTTP(s) monitor on `https://<your-service>.onrender.com/health/` every 5 minutes.
 
 ## Deploy (staging)
 

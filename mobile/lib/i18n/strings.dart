@@ -178,6 +178,51 @@ class S {
   String get haveAccount => _('Tayari una akaunti?', 'Already have an account?');
   String get showPassword => _('Onyesha nenosiri', 'Show password');
 
+  // Template additions
+  String get nothingYet => _('Bado hakuna ujumbe', 'No messages yet');
+  String get loadingTitle => _('Inapakia maudhui...', 'Loading content...');
+  String get pleaseWait => _('Tafadhali subiri kidogo.', 'Please wait a moment.');
+  String get backHome => _('Rudi Nyumbani', 'Back home');
+  String get tagline => _('Kua katika Imani,\nIshi kwa Kusudi.', 'Grow in Faith,\nLive in Purpose.');
+  String get libraryLine => _('Maktaba ya Kikristo ya Kidijitali', 'Christian Digital Library');
+  String get exploreMore => _('Gundua Zaidi', 'Explore more');
+  String get otherResults => _('Matokeo mengine', 'Other results');
+  String get searchContent => _('Tafuta maudhui...', 'Search content...');
+  String get nights => _('Usiku', 'Nights');
+  String get lessons => _('Mafundisho', 'Read');
+  String get favourites => _('Vipendwa', 'Favourites');
+  String get myBooks => _('Vitabu Vyangu', 'My Books');
+  String get booksAndSeries => _('Vitabu na Series', 'Books & Series');
+  String get seeAllArrow => _('Ona Zote', 'See all');
+  String get settings => _('Mipangilio', 'Settings');
+  String get upNextShort => _('Ijayo', 'Up next');
+  String get joinTitle => _('Jiunge na Mate Generous', 'Join Mate Generous');
+  String get joinSub => _('Upate zaidi ya maudhui', 'Get more content');
+  String get perkSermons => _('Mahubiri na Sermons', 'Sermons and preaching resources');
+  String get perkCourses => _('Kozi za Kikristo', 'Christian courses');
+  String get perkPremium => _('Maudhui ya Premium', 'Premium content');
+  String get freePreview => _('Bure', 'Free');
+  String get preview => _('(Onjo)', '(Preview)');
+  String get bestValue => _('BEST VALUE', 'BEST VALUE');
+  String get joinNowArrow => _('Jiunge Sasa', 'Join now');
+  String get continueBtn => _('Endelea', 'Continue');
+  String get signInToContinue => _('Ingia ili kuendelea', 'Sign in to continue');
+  String get welcomeBang => _('Karibu tena!', 'Welcome back!');
+  String get createAccountShort => _('Sajili Akaunti', 'Create account');
+  String get forgotPassword => _('Umesahau Nenosiri?', 'Forgot password?');
+  String get resetTitle => _('Badilisha nenosiri', 'Reset password');
+  String get resetIntro => _('Andika barua pepe au namba ya simu uliyosajili. Tutatuma namba ya siri ya tarakimu 6 kwenye barua pepe yako.',
+      'Enter the email or phone number you registered with. We will email you a 6-digit code.');
+  String get sendCode => _('Tuma namba', 'Send code');
+  String get codeSent => _('Kama akaunti ipo, tumetuma namba kwenye barua pepe yake. Angalia pia folda ya Spam.',
+      'If the account exists, we emailed a code to it. Check your spam folder too.');
+  String get code => _('Namba ya siri (tarakimu 6)', '6-digit code');
+  String get newPassword => _('Nenosiri jipya', 'New password');
+  String get setPassword => _('Badilisha na uingie', 'Reset and sign in');
+  String get sixDigits => _('Weka tarakimu 6', 'Enter 6 digits');
+  String get readerLook => _('Mwonekano wa kusoma', 'Reading look');
+  String get syncedOffline => _('Unatumia nakala iliyohifadhiwa kwenye simu.', 'Showing the copy saved on your phone.');
+
   // Errors
   String get retry => _('Jaribu tena', 'Try again');
   String get offline => _('Hakuna mtandao. Jaribu tena.', 'No connection. Please try again.');

@@ -22,12 +22,12 @@ CATEGORY_STYLE = {
     "asubuhi-ya-tumaini": ("Morning of Hope", "#FFC98A", "sunrise"),
     "weary-souls": ("Weary Souls", "#E7B7FF", "heart"),
     "marriage-family": ("Marriage & Family", "#8FE3C9", "family"),
-    "bible-study": ("Bible Study", "#7CC4FF", "book"),
+    "bible-study": ("Bible Study", "#7CC4FF", "bible"),
     "unabii": ("Prophecy", "#FFB0B8", "eye"),
     "sermons": ("Sermons", "#9CCBFF", "mic"),
     "leadership": ("Leadership", "#C7D2FE", "people"),
     "prayer": ("Prayer", "#FDE68A", "hands"),
-    "books": ("Books", "#E5E08A", "book"),
+    "books": ("Books", "#E5E08A", "books"),
     "courses": ("Courses", "#A7F3D0", "school"),
 }
 

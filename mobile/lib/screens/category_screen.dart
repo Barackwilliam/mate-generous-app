@@ -6,8 +6,9 @@ import '../state/app_state.dart';
 import '../theme/palette.dart';
 import '../widgets/art.dart';
 import '../widgets/common.dart';
+import '../widgets/live.dart';
 
-/// One category (with its series as filter chips) or one series.
+/// One department (with its series as filter chips) or one series.
 class CategoryScreen extends StatefulWidget {
   const CategoryScreen({super.key, this.slug, this.seriesSlug, required this.title, this.category, this.subtitle});
 
@@ -26,131 +27,115 @@ class CategoryScreen extends StatefulWidget {
 }
 
 class _CategoryScreenState extends State<CategoryScreen> {
-  late Future<List<ContentCard>> _items;
-  Future<List<SeriesInfo>>? _series;
   String? _seriesFilter;
-
-  @override
-  void initState() {
-    super.initState();
-    _load();
-    if (widget.slug != null) _series = context.read<AppState>().api.series(category: widget.slug);
-  }
-
-  void _load() {
-    _items = context.read<AppState>().api.contents(
-          category: _seriesFilter == null ? widget.slug : null,
-          series: _seriesFilter ?? widget.seriesSlug,
-        );
-  }
 
   @override
   Widget build(BuildContext context) {
     final s = context.s;
     final p = context.pal;
+    final api = context.read<AppState>().api;
     final cat = widget.category;
+    final look = cat == null ? DeptLook.fallback : DeptLook.of(cat);
     final title = cat != null && widget.seriesSlug == null ? cat.label(s.en) : widget.title;
     final about = widget.subtitle ?? (cat is Category ? cat.about(s.en) : '');
-    final style = cat == null ? null : CategoryStyle.of(cat);
+    final cover = cat is Category ? cat.coverImage : null;
+
     return Scaffold(
-      body: ListView(padding: EdgeInsets.zero, children: [
-        SizedBox(
-          height: 300,
-          child: Stack(fit: StackFit.expand, children: [
-            if (cat is Category && cat.coverImage != null)
-              Image.network(cat.coverImage!, fit: BoxFit.cover, errorBuilder: (_, _, _) => const DawnCrossArt(height: 300, crossLight: true, crossX: 0.77))
-            else
-              const DawnCrossArt(height: 300, crossLight: true, crossX: 0.77),
-            const DecoratedBox(
-              decoration: BoxDecoration(
-                gradient: LinearGradient(
-                  begin: Alignment.topCenter,
-                  end: Alignment.bottomCenter,
-                  colors: [Color(0x00000000), Color(0xCC0A0F24)],
-                  stops: [0.45, 1],
+      body: NightBackground(
+        child: ListView(padding: const EdgeInsets.only(bottom: 40), children: [
+          SizedBox(
+            height: 290,
+            child: Stack(fit: StackFit.expand, children: [
+              AppImage(url: cover, fallback: look.picture),
+              const DecoratedBox(
+                decoration: BoxDecoration(
+                  gradient: LinearGradient(
+                    begin: Alignment.topCenter,
+                    end: Alignment.bottomCenter,
+                    colors: [Color(0x330B1033), Color(0x000B1033), Color(0xF20B1033)],
+                    stops: [0.0, 0.4, 1],
+                  ),
                 ),
               ),
-            ),
-            SafeArea(
-              child: Padding(
-                padding: const EdgeInsets.fromLTRB(16, 10, 16, 0),
-                child: Align(
-                  alignment: Alignment.topCenter,
-                  child: Row(children: [
-                    RoundButton(icon: const Icon(Icons.arrow_back_ios_new_rounded, size: 18), label: s.back, onImage: true, onTap: () => Navigator.pop(context)),
-                    const Spacer(),
-                    const LangToggle(onImage: true),
-                  ]),
+              SafeArea(
+                child: Padding(
+                  padding: const EdgeInsets.fromLTRB(16, 8, 16, 0),
+                  child: Align(
+                    alignment: Alignment.topCenter,
+                    child: Row(children: [
+                      RoundButton(icon: const Icon(Icons.arrow_back_rounded), label: s.back, onImage: true, onTap: () => Navigator.pop(context)),
+                      const Spacer(),
+                      const LangToggle(onImage: true),
+                    ]),
+                  ),
                 ),
               ),
-            ),
-            Positioned(
-              left: 20,
-              right: 20,
-              bottom: 20,
-              child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-                if (widget.seriesSlug != null && cat != null)
-                  Text(cat.label(s.en).toUpperCase(),
-                      style: TextStyle(fontSize: 12, fontWeight: FontWeight.w700, letterSpacing: 1.2, color: style?.accent ?? Palette.gold)),
-                Text(title,
-                    style: const TextStyle(fontFamily: AppTheme.serif, fontSize: 32, fontWeight: FontWeight.w600, color: Colors.white, height: 1.15)),
-                if (about.isNotEmpty) ...[
-                  const SizedBox(height: 6),
-                  Text(about, maxLines: 2, overflow: TextOverflow.ellipsis, style: const TextStyle(fontSize: 13, color: Color(0xFFC9CEE4))),
-                ],
-              ]),
-            ),
-          ]),
-        ),
-        if (_series != null)
-          FutureBuilder<List<SeriesInfo>>(
-            future: _series,
-            builder: (context, snap) {
-              final list = snap.data ?? const <SeriesInfo>[];
-              if (list.isEmpty) return const SizedBox(height: 8);
-              return SizedBox(
-                height: 64,
-                child: ListView(
-                  scrollDirection: Axis.horizontal,
-                  padding: const EdgeInsets.fromLTRB(20, 12, 20, 12),
-                  children: [
-                    SelectChip(label: s.all, selected: _seriesFilter == null, accent: true, onTap: () => setState(() {
-                      _seriesFilter = null;
-                      _load();
-                    })),
-                    for (final x in list) ...[
-                      const SizedBox(width: 8),
-                      SelectChip(label: x.title, selected: _seriesFilter == x.slug, accent: true, onTap: () => setState(() {
-                        _seriesFilter = x.slug;
-                        _load();
-                      })),
+              Positioned(
+                left: 20,
+                right: 20,
+                bottom: 18,
+                child: Row(crossAxisAlignment: CrossAxisAlignment.end, children: [
+                  ClipRRect(borderRadius: BorderRadius.circular(14), child: Image.asset(look.iconPath, width: 56, height: 56)),
+                  const SizedBox(width: 14),
+                  Expanded(
+                    child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+                      Text(title,
+                          style: const TextStyle(fontFamily: AppTheme.serif, fontSize: 30, fontWeight: FontWeight.w600, color: Colors.white, height: 1.1)),
+                      if (about.isNotEmpty) ...[
+                        const SizedBox(height: 4),
+                        Text(about, maxLines: 2, overflow: TextOverflow.ellipsis, style: const TextStyle(fontSize: 13, color: Color(0xFFD5DAF5))),
+                      ],
+                    ]),
+                  ),
+                ]),
+              ),
+            ]),
+          ),
+          if (widget.slug != null)
+            LiveData<List<SeriesInfo>>(
+              load: () => api.series(category: widget.slug),
+              loading: const SizedBox(height: 8),
+              builder: (context, list, _) {
+                if (list.isEmpty) return const SizedBox(height: 8);
+                return SizedBox(
+                  height: 64,
+                  child: ListView(
+                    scrollDirection: Axis.horizontal,
+                    padding: const EdgeInsets.fromLTRB(20, 12, 20, 12),
+                    children: [
+                      SelectChip(label: s.all, selected: _seriesFilter == null, onTap: () => setState(() => _seriesFilter = null)),
+                      for (final x in list) ...[
+                        const SizedBox(width: 8),
+                        SelectChip(label: x.title, selected: _seriesFilter == x.slug, onTap: () => setState(() => _seriesFilter = x.slug)),
+                      ],
                     ],
-                  ],
-                ),
+                  ),
+                );
+              },
+            ),
+          LiveData<List<ContentCard>>(
+            watchKey: _seriesFilter,
+            load: () => api.contents(
+              category: _seriesFilter == null ? widget.slug : null,
+              series: _seriesFilter ?? widget.seriesSlug,
+            ),
+            builder: (context, items, _) {
+              if (items.isEmpty) return EmptyState(message: s.emptyHome);
+              final today = DateUtils.dateOnly(DateTime.now());
+              return Padding(
+                padding: const EdgeInsets.fromLTRB(16, 4, 16, 0),
+                child: Column(children: [
+                  for (final (i, item) in items.indexed)
+                    Padding(
+                      padding: const EdgeInsets.only(bottom: 10),
+                      child: _DatedRow(item: item, highlight: i == 0 && _seriesFilter == null && widget.seriesSlug == null, today: today, p: p),
+                    ),
+                ]),
               );
             },
           ),
-        FutureBuilder<List<ContentCard>>(
-          future: _items,
-          builder: (context, snap) {
-            if (snap.connectionState != ConnectionState.done) return const Loading();
-            if (snap.hasError) return ErrorRetry(error: snap.error!, onRetry: () => setState(_load));
-            final items = snap.data!;
-            if (items.isEmpty) return EmptyState(message: s.emptyHome);
-            final today = DateUtils.dateOnly(DateTime.now());
-            return Padding(
-              padding: const EdgeInsets.fromLTRB(20, 4, 20, 32),
-              child: Column(children: [
-                for (final (i, item) in items.indexed)
-                  Padding(
-                    padding: const EdgeInsets.only(bottom: 10),
-                    child: _DatedRow(item: item, highlight: i == 0 && _seriesFilter == null, today: today, p: p),
-                  ),
-              ]),
-            );
-          },
-        ),
-      ]),
+        ]),
+      ),
     );
   }
 }
@@ -167,15 +152,10 @@ class _DatedRow extends StatelessWidget {
     final s = context.s;
     final d = item.publishAt;
     final isToday = d != null && DateUtils.dateOnly(d) == today;
-    final meta = [item.scriptureReference, if (item.readMinutes != null) s.minutes(item.readMinutes!)]
-        .where((x) => x.isNotEmpty)
-        .join(' · ');
+    final meta = [item.scriptureReference, if (item.readMinutes != null) s.minutes(item.readMinutes!)].where((x) => x.isNotEmpty).join(' · ');
     return Material(
       color: highlight ? p.surfaceHi : p.surface,
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(18),
-        side: BorderSide(color: highlight ? p.accent : p.border),
-      ),
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(18), side: BorderSide(color: highlight ? p.accent : p.border)),
       child: InkWell(
         borderRadius: BorderRadius.circular(18),
         onTap: () => openReader(context, item.slug),
@@ -189,24 +169,26 @@ class _DatedRow extends StatelessWidget {
                   : Column(children: [
                       Text(isToday ? s.today : s.monthShort(d),
                           style: TextStyle(fontSize: 11, fontWeight: FontWeight.w800, color: isToday ? p.accentText : p.muted)),
-                      Text('${d.day}', style: const TextStyle(fontSize: 20, fontWeight: FontWeight.w800)),
+                      Text('${d.day}', style: const TextStyle(fontSize: 21, fontWeight: FontWeight.w800)),
                     ]),
             ),
             const SizedBox(width: 12),
             Expanded(
               child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
                 Text(item.title, maxLines: 2, overflow: TextOverflow.ellipsis,
-                    style: const TextStyle(fontFamily: AppTheme.serif, fontSize: 16, fontWeight: FontWeight.w600)),
+                    style: const TextStyle(fontFamily: AppTheme.serif, fontSize: 16.5, fontWeight: FontWeight.w600)),
                 if (meta.isNotEmpty) ...[
                   const SizedBox(height: 3),
-                  Text(meta, style: TextStyle(fontSize: 12, color: p.muted)),
+                  Text(meta, style: TextStyle(fontSize: 12.5, color: p.muted)),
                 ],
               ]),
             ),
             if (item.isLocked)
-              item.accessLevel == 'premium' ? const PremiumBadge() : Icon(Icons.lock_outline_rounded, size: 18, color: p.muted)
+              item.accessLevel == 'premium' ? const PremiumBadge() : Icon(Icons.lock_rounded, size: 18, color: p.muted)
             else if (item.hasAudio)
-              Icon(Icons.headphones_rounded, size: 20, color: highlight ? p.accentText : p.muted, semanticLabel: s.audio),
+              Icon(Icons.headphones_rounded, size: 20, color: highlight ? p.accentText : p.muted, semanticLabel: s.audio)
+            else
+              Icon(Icons.chevron_right_rounded, color: p.muted),
           ]),
         ),
       ),

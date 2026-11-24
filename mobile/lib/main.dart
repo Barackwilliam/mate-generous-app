@@ -9,9 +9,9 @@ import 'screens/explore_screen.dart';
 import 'screens/home_screen.dart';
 import 'screens/library_screen.dart';
 import 'screens/listen_screen.dart';
+import 'screens/splash_screen.dart';
 import 'state/app_state.dart';
 import 'theme/palette.dart';
-import 'widgets/art.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -22,18 +22,18 @@ Future<void> main() async {
   );
   final api = ApiClient();
   final state = AppState(api);
-  await state.load();
   runApp(MultiProvider(
     providers: [
       ChangeNotifierProvider.value(value: state),
       ChangeNotifierProvider(create: (_) => AudioController(api)),
     ],
-    child: const MateGenerousApp(),
+    child: const MateGenerousApp(showSplash: true),
   ));
 }
 
 class MateGenerousApp extends StatelessWidget {
-  const MateGenerousApp({super.key});
+  const MateGenerousApp({super.key, this.showSplash = false});
+  final bool showSplash;
 
   @override
   Widget build(BuildContext context) {
@@ -44,7 +44,7 @@ class MateGenerousApp extends StatelessWidget {
       theme: AppTheme.of(Palette.light, Brightness.light),
       darkTheme: AppTheme.of(Palette.dark, Brightness.dark),
       themeMode: mode,
-      home: const RootShell(),
+      home: showSplash ? const SplashScreen(next: RootShell()) : const RootShell(),
     );
   }
 }
@@ -70,23 +70,30 @@ class _RootShellState extends State<RootShell> {
       const LibraryScreen(),
     ];
     final items = [
-      (s.home, CrossIcon(size: 22, color: p.faint, outline: true), CrossIcon(size: 22, color: p.accentText)),
-      (s.explore, Icon(Icons.grid_view_outlined, color: p.faint), Icon(Icons.grid_view_rounded, color: p.accentText)),
-      (s.listen, Icon(Icons.headphones_outlined, color: p.faint), Icon(Icons.headphones_rounded, color: p.accentText)),
-      (s.library, Icon(Icons.bookmark_border_rounded, color: p.faint), Icon(Icons.bookmark_rounded, color: p.accentText)),
+      (s.home, Icons.home_outlined, Icons.home_rounded),
+      (s.explore, Icons.grid_view_outlined, Icons.grid_view_rounded),
+      (s.listen, Icons.headphones_outlined, Icons.headphones_rounded),
+      (s.library, Icons.menu_book_outlined, Icons.menu_book_rounded),
     ];
     return Scaffold(
+      extendBody: true,
       body: IndexedStack(index: _index, children: pages),
-      bottomNavigationBar: Column(mainAxisSize: MainAxisSize.min, children: [
-        const MiniPlayer(),
-        Container(
-          decoration: BoxDecoration(color: p.nav, border: Border(top: BorderSide(color: p.border))),
-          child: SafeArea(
-            top: false,
-            child: Semantics(
-              label: s.mainMenu,
-              child: SizedBox(
-                height: 66,
+      bottomNavigationBar: SafeArea(
+        top: false,
+        child: Padding(
+          padding: const EdgeInsets.fromLTRB(12, 0, 12, 10),
+          child: Column(mainAxisSize: MainAxisSize.min, children: [
+            const MiniPlayer(),
+            Container(
+              height: 74,
+              decoration: BoxDecoration(
+                color: p.nav,
+                borderRadius: BorderRadius.circular(24),
+                border: Border.all(color: p.accent.withValues(alpha: 0.55), width: 1.2),
+                boxShadow: [BoxShadow(color: Colors.black.withValues(alpha: 0.35), blurRadius: 18, offset: const Offset(0, 6))],
+              ),
+              child: Semantics(
+                label: s.mainMenu,
                 child: Row(children: [
                   for (final (i, (label, icon, active)) in items.indexed)
                     Expanded(
@@ -94,16 +101,26 @@ class _RootShellState extends State<RootShell> {
                         button: true,
                         selected: _index == i,
                         child: InkWell(
+                          borderRadius: BorderRadius.circular(24),
                           onTap: () => setState(() => _index = i),
                           child: Column(mainAxisAlignment: MainAxisAlignment.center, children: [
-                            _index == i ? active : icon,
-                            const SizedBox(height: 4),
+                            Icon(_index == i ? active : icon, color: _index == i ? p.accentText : p.muted, size: 26),
+                            const SizedBox(height: 2),
                             Text(label,
+                                maxLines: 1,
+                                textScaler: MediaQuery.textScalerOf(context).clamp(maxScaleFactor: 1.15),
                                 style: TextStyle(
-                                  fontSize: 11,
-                                  fontWeight: _index == i ? FontWeight.w700 : FontWeight.w600,
-                                  color: _index == i ? p.accentText : p.faint,
+                                  fontSize: 12,
+                                  fontWeight: _index == i ? FontWeight.w800 : FontWeight.w600,
+                                  color: _index == i ? p.accentText : p.muted,
                                 )),
+                            const SizedBox(height: 3),
+                            AnimatedContainer(
+                              duration: const Duration(milliseconds: 200),
+                              height: 3,
+                              width: _index == i ? 26 : 0,
+                              decoration: BoxDecoration(gradient: Palette.goldGradient, borderRadius: BorderRadius.circular(2)),
+                            ),
                           ]),
                         ),
                       ),
@@ -111,9 +128,9 @@ class _RootShellState extends State<RootShell> {
                 ]),
               ),
             ),
-          ),
+          ]),
         ),
-      ]),
+      ),
     );
   }
 }

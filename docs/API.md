@@ -10,6 +10,8 @@ Base URL: `/api/`. Send `Authorization: Bearer <access token>` once the user is 
 | POST | `auth/token/refresh/` | `refresh` → new `access` (and rotated `refresh`) |
 | GET/PATCH | `auth/me/` | profile (`full_name`, `phone`) |
 | POST | `auth/me/password/` | `old_password, new_password` |
+| POST | `auth/password/forgot/` | `identifier` (email or phone): emails a 6-digit code, valid 15 min. Same reply whether or not the account exists |
+| POST | `auth/password/reset/` | `identifier, code, new_password` → `{user, tokens}`. 5 wrong codes lock that code |
 
 ## Content
 | Method | Path | Notes |

@@ -40,6 +40,16 @@ services:
         value: media-public
       - key: SUPABASE_PRIVATE_BUCKET
         value: media-private
+      # Email for "forgot password" codes. Brevo (free): host smtp-relay.brevo.com,
+      # user = your Brevo SMTP login, password = Brevo SMTP key.
+      - key: EMAIL_HOST
+        value: smtp-relay.brevo.com
+      - key: EMAIL_HOST_USER
+        sync: false
+      - key: EMAIL_HOST_PASSWORD
+        sync: false
+      - key: DEFAULT_FROM_EMAIL
+        sync: false  # e.g. Mate Generous <no-reply@your-domain>
       # First admin account, created on deploy (free plan has no Shell).
       # Already exists → skipped. Change the password in the admin afterwards.
       - key: DJANGO_SUPERUSER_EMAIL

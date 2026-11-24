@@ -16,6 +16,9 @@ class AppState extends ChangeNotifier {
   double fontScale = 1.0;
   String lang = 'sw';
 
+  /// The reader keeps its own look: cream paper by default, as in the design.
+  bool readerLight = true;
+
   static const minFont = 0.85;
   static const maxFont = 1.6;
 
@@ -27,6 +30,7 @@ class AppState extends ChangeNotifier {
     themeMode = ThemeMode.values[prefs.getInt('themeMode') ?? ThemeMode.dark.index];
     fontScale = prefs.getDouble('fontScale') ?? 1.0;
     lang = prefs.getString('lang') ?? 'sw';
+    readerLight = prefs.getBool('readerLight') ?? true;
     await api.loadTokens();
     if (api.isSignedIn) {
       try {
@@ -44,6 +48,15 @@ class AppState extends ChangeNotifier {
     (await SharedPreferences.getInstance()).setString('lang', lang);
   }
 
+  Future<void> setReaderLight(bool value) async {
+    readerLight = value;
+    notifyListeners();
+    (await SharedPreferences.getInstance()).setBool('readerLight', value);
+  }
+
+  /// Download the essentials in the background (first run, and after sign-in).
+  void syncInBackground() => api.prefetch().catchError((_) {});
+
   Future<void> setThemeMode(ThemeMode mode) async {
     themeMode = mode;
     notifyListeners();
@@ -59,11 +72,19 @@ class AppState extends ChangeNotifier {
   Future<void> login(String identifier, String password) async {
     user = await api.login(identifier, password);
     notifyListeners();
+    syncInBackground();
   }
 
   Future<void> register({required String fullName, required String email, String? phone, required String password}) async {
     user = await api.register(fullName: fullName, email: email, phone: phone, password: password);
     notifyListeners();
+    syncInBackground();
+  }
+
+  Future<void> resetPassword(String identifier, String code, String newPassword) async {
+    user = await api.resetPassword(identifier, code, newPassword);
+    notifyListeners();
+    syncInBackground();
   }
 
   Future<void> updateProfile({required String fullName, String? phone}) async {
@@ -75,6 +96,7 @@ class AppState extends ChangeNotifier {
     await api.signOut();
     user = null;
     notifyListeners();
+    syncInBackground();
   }
 }
 

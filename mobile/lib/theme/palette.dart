@@ -1,7 +1,7 @@
 import 'package:material_ui/material_ui.dart';
 
-/// "Nuru ya Msalaba": night blue with the warm gold of dawn light.
-/// Dark is the default; Light is the cream "paper" the reader uses by day.
+/// The approved template: deep night blue-violet, bright gold, glowing cards.
+/// Dark is the app's look; Light is the cream "paper" of the reader by day.
 @immutable
 class Palette extends ThemeExtension<Palette> {
   const Palette({
@@ -34,39 +34,52 @@ class Palette extends ThemeExtension<Palette> {
   final Color chipOn;
   final Color chipOnText;
 
-  static const gold = Color(0xFFF5B544);
-  static const night = Color(0xFF0A0F24);
+  static const gold = Color(0xFFFFC23D);
+  static const goldDeep = Color(0xFFF59E0B);
+  static const night = Color(0xFF0B1033);
+  static const violet = Color(0xFF2A1466);
+  static const green = Color(0xFF1F7A3E);
+
+  /// Gold buttons and badges.
+  static const goldGradient = LinearGradient(colors: [Color(0xFFFFD45C), Color(0xFFF5A623)]);
+
+  /// The night sky behind every dark screen.
+  static const nightGradient = LinearGradient(
+    begin: Alignment.topCenter,
+    end: Alignment.bottomCenter,
+    colors: [Color(0xFF0B1033), Color(0xFF110E3C), Color(0xFF0B1033)],
+  );
 
   static const dark = Palette(
     bg: night,
-    surface: Color(0xFF121937),
-    surfaceHi: Color(0xFF1A2147),
-    border: Color(0xFF222B4D),
-    text: Color(0xFFF3F1EA),
-    muted: Color(0xFFA3ABCB),
-    faint: Color(0xFF8C94B8),
+    surface: Color(0xFF141B4D),
+    surfaceHi: Color(0xFF1B2462),
+    border: Color(0xFF2E3C8F),
+    text: Color(0xFFFFFFFF),
+    muted: Color(0xFFBAC2EA),
+    faint: Color(0xFF8F98CC),
     accent: gold,
     accentText: gold,
-    onAccent: night,
-    nav: Color(0xFF0D1330),
-    chipOn: Color(0xFFF3F1EA),
-    chipOnText: night,
+    onAccent: Color(0xFF1A1033),
+    nav: Color(0xFF0E1544),
+    chipOn: gold,
+    chipOnText: Color(0xFF1A1033),
   );
 
   static const light = Palette(
-    bg: Color(0xFFFBF7EE),
-    surface: Color(0xFFF3EBD9),
-    surfaceHi: Color(0xFFEDE2C9),
-    border: Color(0xFFE4D7BC),
-    text: Color(0xFF22201B),
-    muted: Color(0xFF5F5A4F),
-    faint: Color(0xFF6B6556),
+    bg: Color(0xFFFBF3E1),
+    surface: Color(0xFFF5E7C6),
+    surfaceHi: Color(0xFFEFDDB3),
+    border: Color(0xFFE6D3A8),
+    text: Color(0xFF1E1B2E),
+    muted: Color(0xFF5C5468),
+    faint: Color(0xFF6B6376),
     accent: gold,
     accentText: Color(0xFF8A5A0B),
-    onAccent: night,
-    nav: Color(0xFFF6F0E2),
-    chipOn: Color(0xFF22201B),
-    chipOnText: Color(0xFFFBF7EE),
+    onAccent: Color(0xFF1A1033),
+    nav: Color(0xFFF6EAD0),
+    chipOn: gold,
+    chipOnText: Color(0xFF1A1033),
   );
 
   /// A soft tile colour for a category accent (used for cards and tiles).

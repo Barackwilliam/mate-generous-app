@@ -82,3 +82,17 @@ class ChangePasswordSerializer(serializers.Serializer):
     def validate_new_password(self, value):
         validate_password(value, user=self.context["request"].user)
         return value
+
+
+class ForgotPasswordSerializer(serializers.Serializer):
+    identifier = serializers.CharField()
+
+
+class ResetPasswordSerializer(serializers.Serializer):
+    identifier = serializers.CharField()
+    code = serializers.CharField(max_length=6, min_length=6)
+    new_password = serializers.CharField()
+
+    def validate_new_password(self, value):
+        validate_password(value)
+        return value

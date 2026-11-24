@@ -1,5 +1,6 @@
 import 'dart:math' as math;
 
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:material_ui/material_ui.dart';
 
 import '../api/models.dart';
@@ -172,4 +173,76 @@ class CategoryStyle {
     'hands': Icons.volunteer_activism_outlined,
     'school': Icons.school_outlined,
   };
+}
+
+/// Pictures that ship inside the app (assets/images).
+class Img {
+  static const splash = 'assets/images/splash.webp';
+  static const heroHome = 'assets/images/hero_home.webp';
+  static const audioCover = 'assets/images/audio_cover.webp';
+  static const readerBanner = 'assets/images/reader_banner.webp';
+  static const loginBanner = 'assets/images/login_banner.webp';
+  static const empty = 'assets/images/empty.webp';
+  static const loading = 'assets/images/loading.webp';
+  static const offline = 'assets/images/offline.webp';
+  static const premium = 'assets/images/premium_badge.webp';
+  static const prayerIcon = 'assets/images/icon_prayer.webp';
+}
+
+/// How a department looks in the template: its glossy icon, tile colours,
+/// and the picture used when an item has no cover of its own.
+class DeptLook {
+  const DeptLook(this.icon, this.colors, this.picture, this.cover);
+  final String icon;
+  final List<Color> colors;
+  final String picture;
+  final String cover;
+
+  static const _byIcon = <String, DeptLook>{
+    'cross': DeptLook('icon_bible_study', [Color(0xFFFFC93C), Color(0xFFE08A00)], Img.heroHome, 'assets/images/cover_kesha.webp'),
+    'sunrise': DeptLook('icon_morning', [Color(0xFFFF9F43), Color(0xFFE8590C)], Img.loginBanner, 'assets/images/cover_kuanza_upya.webp'),
+    'heart': DeptLook('icon_weary', [Color(0xFF3B82F6), Color(0xFF1E40AF)], 'assets/images/cover_kuanza_upya.webp', 'assets/images/cover_kuanza_upya.webp'),
+    'family': DeptLook('icon_family', [Color(0xFFEC4899), Color(0xFFA21CAF)], 'assets/images/cover_ndoa.webp', 'assets/images/cover_ndoa.webp'),
+    'eye': DeptLook('icon_prophecy', [Color(0xFF8B5CF6), Color(0xFF5B21B6)], 'assets/images/cover_danieli.webp', 'assets/images/cover_danieli.webp'),
+    'mic': DeptLook('icon_sermons', [Color(0xFF22C55E), Color(0xFF15803D)], Img.audioCover, 'assets/images/cover_kesha.webp'),
+    'people': DeptLook('icon_leadership', [Color(0xFF3B82F6), Color(0xFF1D4ED8)], Img.offline, 'assets/images/cover_kesha.webp'),
+    'hands': DeptLook('icon_prayer', [Color(0xFF84CC16), Color(0xFF3F6212)], Img.splash, 'assets/images/cover_kesha.webp'),
+    'books': DeptLook('icon_books', [Color(0xFFB7791F), Color(0xFF7C4A12)], Img.readerBanner, 'assets/images/cover_danieli.webp'),
+    'school': DeptLook('icon_courses', [Color(0xFF2563EB), Color(0xFF1E3A8A)], Img.readerBanner, 'assets/images/cover_kesha.webp'),
+    'bible': DeptLook('icon_bible_study', [Color(0xFF14B8A6), Color(0xFF0F766E)], Img.readerBanner, 'assets/images/cover_kesha.webp'),
+  };
+
+  static const fallback = DeptLook('icon_more', [Color(0xFF7C3AED), Color(0xFF4C1D95)], Img.offline, 'assets/images/cover_kesha.webp');
+
+  static DeptLook of(CategoryRef c) => _byIcon[c.icon] ?? fallback;
+
+  String get iconPath => 'assets/images/$icon.webp';
+}
+
+/// An image from the server (cached on the phone) or, when there is none or it
+/// fails, a picture from the app itself.
+class AppImage extends StatelessWidget {
+  const AppImage({super.key, this.url, required this.fallback, this.fit = BoxFit.cover, this.width, this.height, this.alignment = Alignment.center});
+  final String? url;
+  final String fallback;
+  final BoxFit fit;
+  final double? width;
+  final double? height;
+  final Alignment alignment;
+
+  @override
+  Widget build(BuildContext context) {
+    final local = Image.asset(fallback, fit: fit, width: width, height: height, alignment: alignment, gaplessPlayback: true);
+    if (url == null || url!.isEmpty) return local;
+    return CachedNetworkImage(
+      imageUrl: url!,
+      fit: fit,
+      width: width,
+      height: height,
+      alignment: alignment,
+      placeholder: (_, _) => local,
+      errorWidget: (_, _, _) => local,
+      fadeInDuration: const Duration(milliseconds: 200),
+    );
+  }
 }
