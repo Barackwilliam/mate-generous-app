@@ -1,0 +1,29 @@
+{% extends "admin/base_site.html" %}
+{% block title %}Pakia maudhui (JSON){% endblock %}
+{% block content %}
+<div style="max-width: 820px">
+  <h1 style="font-size: 22px; font-weight: 700; margin-bottom: 12px">Pakia maudhui kutoka JSON</h1>
+  <p style="margin-bottom: 16px">Pakia faili moja au zaidi za <code>.json</code> zilizoandaliwa kwa muundo wa <code>docs/CONTENT_IMPORT.md</code>.
+    Jumbe zinazolingana kwa <em>slug</em> zinasasishwa badala ya kurudiwa. Faili lenye kosa lolote halihifadhiwi kabisa;
+    utaona orodha ya makosa ili urekebishe.</p>
+
+  {% if reports %}
+    {% for name, r in reports %}
+      <div style="border: 1px solid {% if r.errors %}#ef4444{% else %}#22c55e{% endif %}; border-radius: 8px; padding: 12px 14px; margin-bottom: 12px">
+        <strong>{{ name }}</strong>{% if dry_run %} <em>(ukaguzi tu, hakuna kilichohifadhiwa)</em>{% endif %}<br>
+        {{ r.summary }}
+        {% if r.errors %}<ul style="margin-top: 8px; color: #ef4444">{% for e in r.errors %}<li>✗ {{ e }}</li>{% endfor %}</ul>{% endif %}
+        {% if r.warnings %}<ul style="margin-top: 8px; color: #d97706">{% for w in r.warnings %}<li>! {{ w }}</li>{% endfor %}</ul>{% endif %}
+      </div>
+    {% endfor %}
+  {% endif %}
+
+  <form method="post" enctype="multipart/form-data" style="display: flex; flex-direction: column; gap: 14px; margin-top: 16px">
+    {% csrf_token %}
+    <label><strong>Faili za JSON</strong><br><input type="file" name="files" accept=".json,application/json" multiple required></label>
+    <label><input type="checkbox" name="replace_samples"> Futa maudhui ya sampuli kwanza (jumbe 16 za mfano zilizokuja na mfumo)</label>
+    <label><input type="checkbox" name="dry_run"> Kagua tu, usihifadhi (inashauriwa mara ya kwanza)</label>
+    <div><button type="submit" class="bg-primary-600 text-white px-4 py-2 rounded-md" style="font-weight: 600">Pakia</button></div>
+  </form>
+</div>
+{% endblock %}

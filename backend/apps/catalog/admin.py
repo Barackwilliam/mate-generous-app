@@ -1,8 +1,11 @@
 from django.contrib import admin, messages
 from django.db import models
+from django.template.response import TemplateResponse
+from unfold.decorators import action
 from unfold.admin import ModelAdmin, TabularInline
 from unfold.contrib.forms.widgets import WysiwygWidget
 
+from . import importer
 from .models import Author, Category, Content, HomeSection, PublishStatus, Series, Topic
 
 
@@ -60,6 +63,31 @@ class ContentAdmin(StatusActionsMixin, ModelAdmin):
     prepopulated_fields = {"slug": ("title",)}
     autocomplete_fields = ("category", "series", "author", "topics")
     formfield_overrides = {models.TextField: {"widget": WysiwygWidget}}
+    actions_list = ["import_json"]
+
+    def has_import_json_permission(self, request, obj=None):
+        return request.user.has_perm("catalog.add_content")
+
+    @action(description="Pakia maudhui (JSON)", url_path="import-json/", permissions=["import_json"])
+    def import_json(self, request):
+        reports, dry_run = [], False
+        if request.method == "POST":
+            dry_run = bool(request.POST.get("dry_run"))
+            replace = bool(request.POST.get("replace_samples"))
+            for i, f in enumerate(request.FILES.getlist("files")):
+                try:
+                    text = f.read().decode("utf-8-sig")
+                except UnicodeDecodeError:
+                    report = importer.Report(errors=["Faili si maandishi ya UTF-8 (hifadhi kama .json)."])
+                else:
+                    report = importer.load_text(text, replace_samples=replace and i == 0, dry_run=dry_run)
+                reports.append((f.name, report))
+            ok = [r for _, r in reports if not r.errors]
+            if ok and not dry_run:
+                messages.success(request, f"Imefanikiwa: faili {len(ok)} kati ya {len(reports)}.")
+        context = {**self.admin_site.each_context(request), "reports": reports, "dry_run": dry_run,
+                   "title": "Pakia maudhui (JSON)", "opts": self.model._meta}
+        return TemplateResponse(request, "admin/catalog/import_content.html", context)
     fieldsets = (
         (None, {"fields": ("title", "slug", "kind", "category", "series", "order_in_series", "author", "topics", "cover_image")}),
         ("Scripture", {"fields": ("scripture_reference", "scripture_text")}),
