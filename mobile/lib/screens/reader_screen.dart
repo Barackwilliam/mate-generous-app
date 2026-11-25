@@ -119,7 +119,53 @@ class _ReaderState extends State<_Reader> {
     }
   }
 
-  void _share(ContentDetail item) {
+  /// Sharing is a member benefit (the client's request): visitors are asked to
+  /// sign in, free users to join a plan.
+  Future<void> _share(ContentDetail item) async {
+    if (_app.isSignedIn && !_app.isMember) await _app.refreshAccess();
+    if (!mounted) return;
+    if (!_app.isMember) {
+      _askToJoin();
+      return;
+    }
+    _shareNow(item);
+  }
+
+  void _askToJoin() {
+    final s = _app.s;
+    final signedIn = _app.isSignedIn;
+    showModalBottomSheet(
+      context: context,
+      backgroundColor: Palette.night,
+      showDragHandle: true,
+      builder: (sheet) => Padding(
+        padding: const EdgeInsets.fromLTRB(24, 0, 24, 28),
+        child: Column(mainAxisSize: MainAxisSize.min, children: [
+          Image.asset(Img.premium, height: 80),
+          const SizedBox(height: 12),
+          Text(s.shareLockedTitle, textAlign: TextAlign.center,
+              style: const TextStyle(fontSize: 19, fontWeight: FontWeight.w800, color: Colors.white)),
+          const SizedBox(height: 8),
+          Text(signedIn ? s.shareLockedBody : s.shareSignIn, textAlign: TextAlign.center,
+              style: const TextStyle(color: Color(0xFFD5DAF5), height: 1.5)),
+          const SizedBox(height: 18),
+          SizedBox(
+            width: double.infinity,
+            child: PrimaryButton(
+              label: signedIn ? s.joinNowArrow : s.signInOrUp,
+              trailing: const Icon(Icons.arrow_forward_rounded),
+              onPressed: () {
+                Navigator.pop(sheet);
+                push(context, signedIn ? const PlansScreen() : const AuthScreen());
+              },
+            ),
+          ),
+        ]),
+      ),
+    );
+  }
+
+  void _shareNow(ContentDetail item) {
     final s = _app.s;
     final parts = [
       item.title,
@@ -166,7 +212,6 @@ class _ReaderState extends State<_Reader> {
                   ),
                 ),
               ),
-              const LangToggle(compact: true),
               if (item != null) ...[
                 RoundButton(
                   bare: true,

@@ -4,5 +4,5 @@ class AppConfig {
     'API_BASE_URL',
     defaultValue: 'http://10.0.2.2:8000', // Android emulator → local backend
   );
-  static const appName = 'Mate Generous';
+  static const appName = 'Kesha la Usiku';
 }

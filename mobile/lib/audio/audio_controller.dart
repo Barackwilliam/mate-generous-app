@@ -58,7 +58,7 @@ class AudioController extends ChangeNotifier {
           tag: MediaItem(
             id: item.slug,
             title: item.title,
-            artist: item.authorName ?? 'Mate Generous',
+            artist: item.authorName ?? 'Kesha la Usiku',
             album: item.seriesTitle ?? item.category.name,
             duration: item.audioSeconds == null ? null : Duration(seconds: item.audioSeconds!),
           ),

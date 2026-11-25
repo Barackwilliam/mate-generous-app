@@ -1,4 +1,4 @@
-# Mate Generous App
+# Kesha la Usiku (Mate Generous App)
 
 A Christian digital library with **Kesha la Usiku** as its flagship nightly devotional, plus Asubuhi ya Tumaini, Weary Souls, Marriage & Family, Unabii, the Sermon Library and more.
 

@@ -64,8 +64,6 @@ class _PlansScreenState extends State<PlansScreen> {
               child: ListView(padding: const EdgeInsets.fromLTRB(16, 6, 16, 28), children: [
                 Row(children: [
                   RoundButton(icon: const Icon(Icons.close_rounded), label: s.close, bare: true, onTap: () => Navigator.pop(context)),
-                  const Spacer(),
-                  const LangToggle(),
                 ]),
                 Center(child: Image.asset(Img.premium, height: 104)),
                 const SizedBox(height: 10),

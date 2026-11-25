@@ -79,7 +79,6 @@ class AccountScreen extends StatelessWidget {
               RoundButton(icon: const Icon(Icons.arrow_back_rounded), label: s.back, bare: true, onTap: () => Navigator.pop(context)),
               const SizedBox(width: 4),
               Expanded(child: Text(s.account, style: const TextStyle(fontSize: 24, fontWeight: FontWeight.w800))),
-              const LangToggle(),
             ]),
             const SizedBox(height: 16),
             if (user == null)

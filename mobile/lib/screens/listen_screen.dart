@@ -9,6 +9,7 @@ import '../theme/palette.dart';
 import '../widgets/art.dart';
 import '../widgets/common.dart';
 import '../widgets/live.dart';
+import '../widgets/shell.dart';
 
 String _fmt(Duration d) =>
     '${d.inMinutes.toString().padLeft(2, '0')}:${(d.inSeconds % 60).toString().padLeft(2, '0')}';
@@ -32,7 +33,6 @@ class ListenScreen extends StatelessWidget {
               Row(children: [
                 RoundButton(icon: const Icon(Icons.arrow_back_rounded), label: s.close, bare: true, onTap: () => Navigator.pop(context)),
                 const Spacer(),
-                const LangToggle(),
                 if (item != null)
                   RoundButton(icon: const Icon(Icons.menu_book_rounded), label: s.read(null), bare: true, onTap: () => openReader(context, item.slug)),
               ]),
@@ -255,12 +255,10 @@ class ListenTab extends StatelessWidget {
               color: p.accent,
               onRefresh: reload,
               child: ListView(padding: const EdgeInsets.only(bottom: 120), children: [
+                const AppTopBar(),
                 Padding(
-                  padding: const EdgeInsets.fromLTRB(20, 12, 20, 8),
-                  child: Row(children: [
-                    Expanded(child: Text(s.listen, style: const TextStyle(fontSize: 28, fontWeight: FontWeight.w800, letterSpacing: -0.5))),
-                    const LangToggle(),
-                  ]),
+                  padding: const EdgeInsets.fromLTRB(20, 6, 20, 8),
+                  child: Text(s.listen, style: const TextStyle(fontSize: 26, fontWeight: FontWeight.w800, letterSpacing: -0.5)),
                 ),
                 if (audio.current != null)
                   Padding(

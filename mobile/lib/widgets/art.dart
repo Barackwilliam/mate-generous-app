@@ -187,6 +187,7 @@ class Img {
   static const offline = 'assets/images/offline.webp';
   static const premium = 'assets/images/premium_badge.webp';
   static const prayerIcon = 'assets/images/icon_prayer.webp';
+  static const logo = 'assets/images/logo.webp';
 }
 
 /// How a department looks in the template: its glossy icon, tile colours,

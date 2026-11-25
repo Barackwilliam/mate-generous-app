@@ -39,8 +39,11 @@ class NightBackground extends StatelessWidget {
 
 /// The SW | EN switch shown on every screen.
 class LangToggle extends StatelessWidget {
-  const LangToggle({super.key, this.onImage = false, this.compact = false});
+  const LangToggle({super.key, this.onImage = false, this.compact = false, this.small = false});
   final bool onImage;
+
+  /// A smaller switch, for the menu and the sign-in page.
+  final bool small;
 
   /// Plain "SW | EN" text, as in the reader's toolbar.
   final bool compact;
@@ -81,24 +84,24 @@ class LangToggle extends StatelessWidget {
           onTap: () => app.setLang(code),
           child: AnimatedContainer(
             duration: const Duration(milliseconds: 180),
-            height: 34,
-            constraints: const BoxConstraints(minWidth: 40),
-            padding: const EdgeInsets.symmetric(horizontal: 10),
+            height: small ? 26 : 34,
+            constraints: BoxConstraints(minWidth: small ? 34 : 40),
+            padding: EdgeInsets.symmetric(horizontal: small ? 8 : 10),
             alignment: Alignment.center,
             decoration: BoxDecoration(gradient: on ? Palette.goldGradient : null, borderRadius: BorderRadius.circular(17)),
             child: Text(code.toUpperCase(),
-                style: TextStyle(fontSize: 12, fontWeight: on ? FontWeight.w800 : FontWeight.w700, color: on ? p.onAccent : (onImage ? Colors.white : p.muted))),
+                style: TextStyle(fontSize: small ? 11 : 12, fontWeight: on ? FontWeight.w800 : FontWeight.w700, color: on ? p.onAccent : (onImage ? Colors.white : p.muted))),
           ),
         ),
       );
     }
 
     return Container(
-      height: 44,
-      padding: const EdgeInsets.all(4),
+      height: small ? 34 : 44,
+      padding: EdgeInsets.all(small ? 3 : 4),
       decoration: BoxDecoration(
         color: onImage ? Palette.night.withValues(alpha: 0.55) : p.surface,
-        borderRadius: BorderRadius.circular(22),
+        borderRadius: BorderRadius.circular(small ? 17 : 22),
         border: Border.all(color: onImage ? Colors.white24 : p.border),
       ),
       child: Row(mainAxisSize: MainAxisSize.min, children: [option('sw'), const SizedBox(width: 2), option('en')]),

@@ -58,11 +58,16 @@ class _SplashScreenState extends State<SplashScreen> {
           child: Padding(
             padding: const EdgeInsets.fromLTRB(24, 0, 24, 36),
             child: Column(mainAxisAlignment: MainAxisAlignment.end, children: [
+              ClipRRect(
+                borderRadius: BorderRadius.circular(26),
+                child: Image.asset(Img.logo, width: 112, height: 112),
+              ),
+              const SizedBox(height: 16),
               ShaderMask(
                 shaderCallback: (r) => const LinearGradient(colors: [Color(0xFFFFE08A), Color(0xFFF5A623)]).createShader(r),
-                child: const Text('Mate\nGenerous',
+                child: const Text('KESHA LA\nUSIKU',
                     textAlign: TextAlign.center,
-                    style: TextStyle(fontFamily: AppTheme.serif, fontSize: 52, height: 1.0, fontWeight: FontWeight.w600, color: Colors.white)),
+                    style: TextStyle(fontFamily: AppTheme.serif, fontSize: 44, height: 1.05, fontWeight: FontWeight.w600, letterSpacing: 2, color: Colors.white)),
               ),
               const SizedBox(height: 12),
               Text(s.libraryLine, style: const TextStyle(color: Colors.white, fontSize: 15, fontWeight: FontWeight.w600)),

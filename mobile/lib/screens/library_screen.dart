@@ -7,7 +7,7 @@ import '../theme/palette.dart';
 import '../widgets/art.dart';
 import '../widgets/common.dart';
 import '../widgets/live.dart';
-import 'account_screen.dart';
+import '../widgets/shell.dart';
 import 'auth_screen.dart';
 import 'category_screen.dart';
 import 'home_screen.dart' show BookCover;
@@ -28,14 +28,13 @@ class _LibraryScreenState extends State<LibraryScreen> {
     final s = context.s;
     final p = context.pal;
     final app = context.watch<AppState>();
-    final header = Padding(
-      padding: const EdgeInsets.fromLTRB(20, 12, 12, 8),
-      child: Row(children: [
-        Expanded(child: Text(s.myLibrary, style: const TextStyle(fontSize: 26, fontWeight: FontWeight.w800, letterSpacing: -0.4))),
-        const LangToggle(),
-        RoundButton(icon: const Icon(Icons.settings_rounded), label: s.settings, bare: true, onTap: () => push(context, const AccountScreen())),
-      ]),
-    );
+    final header = Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+      const AppTopBar(),
+      Padding(
+        padding: const EdgeInsets.fromLTRB(20, 6, 20, 8),
+        child: Text(s.myLibrary, style: const TextStyle(fontSize: 26, fontWeight: FontWeight.w800, letterSpacing: -0.4)),
+      ),
+    ]);
 
     if (!app.isSignedIn) {
       return Scaffold(

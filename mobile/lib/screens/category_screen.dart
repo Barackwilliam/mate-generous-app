@@ -64,8 +64,6 @@ class _CategoryScreenState extends State<CategoryScreen> {
                     alignment: Alignment.topCenter,
                     child: Row(children: [
                       RoundButton(icon: const Icon(Icons.arrow_back_rounded), label: s.back, onImage: true, onTap: () => Navigator.pop(context)),
-                      const Spacer(),
-                      const LangToggle(onImage: true),
                     ]),
                   ),
                 ),

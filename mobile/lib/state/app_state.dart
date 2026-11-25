@@ -16,6 +16,10 @@ class AppState extends ChangeNotifier {
   double fontScale = 1.0;
   String lang = 'sw';
 
+  /// "standard", "premium", or null (free). Used for member-only features such as sharing.
+  String? tier;
+  bool get isMember => tier != null;
+
   /// The reader keeps its own look: cream paper by default, as in the design.
   bool readerLight = true;
 
@@ -38,6 +42,7 @@ class AppState extends ChangeNotifier {
       } catch (_) {
         // Offline at start-up: stay signed in and try again later.
       }
+      await refreshAccess();
     }
     notifyListeners();
   }
@@ -52,6 +57,18 @@ class AppState extends ChangeNotifier {
     readerLight = value;
     notifyListeners();
     (await SharedPreferences.getInstance()).setBool('readerLight', value);
+  }
+
+  /// Re-read the user's plan (after sign-in, or when a screen needs it).
+  Future<void> refreshAccess() async {
+    if (!api.isSignedIn) {
+      tier = null;
+      return;
+    }
+    try {
+      tier = (await api.access()).tier;
+      notifyListeners();
+    } catch (_) {}
   }
 
   /// Download the essentials in the background (first run, and after sign-in).
@@ -72,18 +89,21 @@ class AppState extends ChangeNotifier {
   Future<void> login(String identifier, String password) async {
     user = await api.login(identifier, password);
     notifyListeners();
+    await refreshAccess();
     syncInBackground();
   }
 
   Future<void> register({required String fullName, required String email, String? phone, required String password}) async {
     user = await api.register(fullName: fullName, email: email, phone: phone, password: password);
     notifyListeners();
+    await refreshAccess();
     syncInBackground();
   }
 
   Future<void> resetPassword(String identifier, String code, String newPassword) async {
     user = await api.resetPassword(identifier, code, newPassword);
     notifyListeners();
+    await refreshAccess();
     syncInBackground();
   }
 
@@ -95,6 +115,7 @@ class AppState extends ChangeNotifier {
   Future<void> signOut() async {
     await api.signOut();
     user = null;
+    tier = null;
     notifyListeners();
     syncInBackground();
   }

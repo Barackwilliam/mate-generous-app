@@ -92,7 +92,7 @@ class S {
   String get next => _('Kinachofuata', 'Next');
   String minutes(int m) => _('dk $m', '$m min');
   String minRead(int m) => _('dk $m kusoma', '$m min read');
-  String get readMoreOn => _('Soma zaidi kwenye Mate Generous', 'Read more on Mate Generous');
+  String get readMoreOn => _('Soma zaidi kwenye Kesha la Usiku', 'Read more on Kesha la Usiku');
   String get membersOnly => _('Ujumbe huu ni kwa wanachama.', 'This message is for members.');
   String get premiumOnly => _('Ujumbe huu ni kwa wanachama wa Premium.', 'This message is for Premium members.');
   String get joinToRead => _('Jiunge ili kusoma ujumbe kamili, sala na kusikiliza sauti.',
@@ -196,7 +196,7 @@ class S {
   String get seeAllArrow => _('Ona Zote', 'See all');
   String get settings => _('Mipangilio', 'Settings');
   String get upNextShort => _('Ijayo', 'Up next');
-  String get joinTitle => _('Jiunge na Mate Generous', 'Join Mate Generous');
+  String get joinTitle => _('Jiunge na Kesha la Usiku', 'Join Kesha la Usiku');
   String get joinSub => _('Upate zaidi ya maudhui', 'Get more content');
   String get perkSermons => _('Mahubiri na Sermons', 'Sermons and preaching resources');
   String get perkCourses => _('Kozi za Kikristo', 'Christian courses');
@@ -222,6 +222,18 @@ class S {
   String get sixDigits => _('Weka tarakimu 6', 'Enter 6 digits');
   String get readerLook => _('Mwonekano wa kusoma', 'Reading look');
   String get syncedOffline => _('Unatumia nakala iliyohifadhiwa kwenye simu.', 'Showing the copy saved on your phone.');
+
+  // Header, menu and sharing
+  String get appTitle => 'KESHA LA USIKU';
+  String get menu => _('Menyu', 'Menu');
+  String get accountSettings => _('Akaunti na Mipangilio', 'Account & Settings');
+  String get joinPremium => _('Jiunge (Premium)', 'Join (Premium)');
+  String get guest => _('Mgeni', 'Guest');
+  String get shareLockedTitle => _('Kushiriki ni huduma ya wanachama', 'Sharing is for members');
+  String get shareLockedBody => _('Jiunge na mpango wowote ili kushiriki jumbe na marafiki kupitia WhatsApp, Facebook na mitandao mingine.',
+      'Join any plan to share messages with friends on WhatsApp, Facebook and other apps.');
+  String get shareSignIn => _('Ingia, kisha jiunge na mpango ili kushiriki jumbe na marafiki zako.',
+      'Sign in, then join a plan to share messages with your friends.');
 
   // Errors
   String get retry => _('Jaribu tena', 'Try again');

@@ -275,8 +275,6 @@ class AuthFrame extends StatelessWidget {
                   child: Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
                     if (Navigator.canPop(context))
                       RoundButton(icon: const Icon(Icons.close_rounded), label: s.close, onImage: true, onTap: () => Navigator.pop(context)),
-                    const Spacer(),
-                    const LangToggle(onImage: true),
                   ]),
                 ),
               ),
@@ -285,12 +283,13 @@ class AuthFrame extends StatelessWidget {
                 right: 0,
                 bottom: 14,
                 child: Column(children: [
-                  const CrossIcon(size: 40, color: Color(0xFFFFD45C)),
+                  ClipRRect(borderRadius: BorderRadius.circular(18), child: Image.asset(Img.logo, width: 72, height: 72)),
+                  const SizedBox(height: 8),
                   ShaderMask(
                     shaderCallback: (r) => const LinearGradient(colors: [Color(0xFFFFE08A), Color(0xFFF5A623)]).createShader(r),
-                    child: const Text('Mate\nGenerous',
+                    child: const Text('KESHA LA USIKU',
                         textAlign: TextAlign.center,
-                        style: TextStyle(fontFamily: AppTheme.serif, fontSize: 36, height: 1.0, fontWeight: FontWeight.w600, color: Colors.white,
+                        style: TextStyle(fontFamily: AppTheme.serif, fontSize: 28, fontWeight: FontWeight.w600, letterSpacing: 1.5, color: Colors.white,
                             shadows: [Shadow(color: Colors.black54, blurRadius: 8)])),
                   ),
                 ]),
@@ -305,6 +304,8 @@ class AuthFrame extends StatelessWidget {
               Text(subtitle, textAlign: TextAlign.center, style: const TextStyle(fontSize: 14.5, color: Color(0xFFD5DAF5), height: 1.4)),
               const SizedBox(height: 20),
               child,
+              const SizedBox(height: 18),
+              const Center(child: LangToggle(small: true)),
             ]),
           ),
         ]),

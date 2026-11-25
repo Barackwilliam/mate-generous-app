@@ -134,12 +134,18 @@ void main() {
     await tester.pumpWidget(wrap(state, const MateGenerousApp()));
     await tester.pumpAndSettle();
 
-    await tester.tap(find.text('EN').first);
+    // The language switch now lives in the side menu.
+    expect(find.text('EN'), findsNothing);
+    await tester.tap(find.byTooltip('Menyu'));
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('EN'));
+    await tester.pumpAndSettle();
+    Navigator.of(tester.element(find.byType(Drawer))).pop();
     await tester.pumpAndSettle();
     expect(find.text('Good evening').evaluate().isNotEmpty || find.text('Good morning').evaluate().isNotEmpty || find.text('Good afternoon').evaluate().isNotEmpty, isTrue);
     expect(find.text('Read · 6 min'), findsOneWidget);
     expect(find.text('Latest messages'), findsOneWidget);
-    expect(find.text('Home'), findsOneWidget);
+    expect(find.text('Home'), findsWidgets);
     expect(find.text('Prophecy'), findsOneWidget); // category name in English
     final prefs = await SharedPreferences.getInstance();
     expect(prefs.getString('lang'), 'en');
@@ -255,6 +261,65 @@ void main() {
       expect(tester.takeException(), isNull);
     });
   }
+
+  testWidgets('header: menu left, KESHA LA USIKU centred, search right; menu has the main places', (tester) async {
+    tallPhone(tester);
+    final state = await appState();
+    await tester.pumpWidget(wrap(state, const MateGenerousApp()));
+    await tester.pumpAndSettle();
+    final menu = tester.getCenter(find.byTooltip('Menyu'));
+    final title = tester.getCenter(find.text('KESHA LA USIKU'));
+    final search = tester.getCenter(find.byTooltip('Tafuta'));
+    expect(menu.dx < title.dx && title.dx < search.dx, isTrue);
+    expect((title.dx - 390 / 2).abs() < 2, isTrue); // centred on the screen
+    await tester.tap(find.byTooltip('Menyu'));
+    await tester.pumpAndSettle();
+    expect(find.byType(Drawer), findsOneWidget);
+    expect(find.text('Jiunge (Premium)'), findsOneWidget);
+    expect(find.text('Akaunti na Mipangilio'), findsOneWidget);
+    expect(find.text('Lugha'), findsOneWidget);
+    await tester.tap(find.text('Makundi').last);
+    await tester.pumpAndSettle();
+    expect(find.byType(Drawer), findsNothing);
+    expect(find.text('Gundua'), findsWidgets);
+  });
+
+  testWidgets('sharing is for members: a visitor is asked to sign in', (tester) async {
+    tallPhone(tester);
+    final state = await appState();
+    await tester.pumpWidget(page(state, const ReaderScreen(slug: 'leo')));
+    await tester.pumpAndSettle();
+    await tester.tap(find.byTooltip('Shiriki'));
+    await tester.pumpAndSettle();
+    expect(find.text('Kushiriki ni huduma ya wanachama'), findsOneWidget);
+    expect(find.text('Ingia au jisajili'), findsOneWidget);
+  });
+
+  testWidgets('sharing is for members: a signed-in free user is asked to join', (tester) async {
+    tallPhone(tester);
+    routes['/api/auth/me/'] = {'email': 'neema@example.com', 'full_name': 'Neema Joseph'};
+    routes['/api/subscriptions/me/'] = {'tier': null, 'expires_at': null, 'history': []};
+    SharedPreferences.setMockInitialValues({'refresh': 'r', 'access': 'a'});
+    final state = AppState(fakeApi());
+    await state.load();
+    expect(state.isMember, isFalse);
+    await tester.pumpWidget(page(state, const ReaderScreen(slug: 'leo')));
+    await tester.pumpAndSettle();
+    await tester.tap(find.byTooltip('Shiriki'));
+    await tester.pumpAndSettle();
+    expect(find.text('Jiunge Sasa'), findsOneWidget);
+  });
+
+  test('a member is recognised from the subscription engine', () async {
+    routes['/api/auth/me/'] = {'email': 'neema@example.com', 'full_name': 'Neema Joseph'};
+    routes['/api/subscriptions/me/'] = {'tier': 'standard', 'expires_at': '2027-11-20T18:00:00Z', 'history': []};
+    SharedPreferences.setMockInitialValues({'refresh': 'r', 'access': 'a'});
+    final state = AppState(fakeApi());
+    await state.load();
+    expect(state.isMember, isTrue);
+    await state.signOut();
+    expect(state.isMember, isFalse);
+  });
 
   test('offline-first: a saved copy is served when the server is unreachable', () async {
     SharedPreferences.setMockInitialValues({});

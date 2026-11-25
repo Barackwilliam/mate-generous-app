@@ -6,6 +6,7 @@ import '../state/app_state.dart';
 import '../theme/palette.dart';
 import '../widgets/common.dart';
 import '../widgets/live.dart';
+import '../widgets/shell.dart';
 import 'category_screen.dart';
 import 'search_screen.dart';
 
@@ -35,11 +36,10 @@ class ExploreScreen extends StatelessWidget {
               return RefreshIndicator(
                 color: p.accent,
                 onRefresh: reload,
-                child: ListView(padding: const EdgeInsets.fromLTRB(16, 12, 16, 120), children: [
-                  Row(children: [
-                    Expanded(child: Text(s.discover, style: const TextStyle(fontSize: 28, fontWeight: FontWeight.w800, letterSpacing: -0.5))),
-                    const LangToggle(),
-                  ]),
+                child: ListView(padding: const EdgeInsets.fromLTRB(16, 0, 16, 120), children: [
+                  const AppTopBar(),
+                  const SizedBox(height: 6),
+                  Text(s.discover, style: const TextStyle(fontSize: 26, fontWeight: FontWeight.w800, letterSpacing: -0.5)),
                   const SizedBox(height: 14),
                   _SearchField(hint: s.searchContent, onTap: () => push(context, const SearchScreen())),
                   if (topics.isNotEmpty) ...[

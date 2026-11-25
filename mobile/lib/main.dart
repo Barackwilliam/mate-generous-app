@@ -12,12 +12,13 @@ import 'screens/listen_screen.dart';
 import 'screens/splash_screen.dart';
 import 'state/app_state.dart';
 import 'theme/palette.dart';
+import 'widgets/shell.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await JustAudioBackground.init(
     androidNotificationChannelId: 'com.mategenerous.audio',
-    androidNotificationChannelName: 'Mate Generous',
+    androidNotificationChannelName: 'Kesha la Usiku',
     androidNotificationOngoing: true,
   );
   final api = ApiClient();
@@ -58,6 +59,12 @@ class RootShell extends StatefulWidget {
 
 class _RootShellState extends State<RootShell> {
   int _index = 0;
+  final _scaffold = GlobalKey<ScaffoldState>();
+
+  void _goToTab(int i) {
+    if (_scaffold.currentState?.isDrawerOpen ?? false) Navigator.of(context).pop();
+    setState(() => _index = i);
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -76,8 +83,14 @@ class _RootShellState extends State<RootShell> {
       (s.library, Icons.menu_book_outlined, Icons.menu_book_rounded),
     ];
     return Scaffold(
+      key: _scaffold,
       extendBody: true,
-      body: IndexedStack(index: _index, children: pages),
+      drawer: AppDrawer(currentTab: _index, onTab: _goToTab),
+      body: ShellScope(
+        openMenu: () => _scaffold.currentState?.openDrawer(),
+        goToTab: _goToTab,
+        child: IndexedStack(index: _index, children: pages),
+      ),
       bottomNavigationBar: SafeArea(
         top: false,
         child: Padding(

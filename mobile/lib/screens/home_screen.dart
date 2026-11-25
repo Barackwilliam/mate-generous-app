@@ -10,7 +10,7 @@ import '../widgets/common.dart';
 import '../widgets/live.dart';
 import 'category_screen.dart';
 import 'listen_screen.dart';
-import 'search_screen.dart';
+import '../widgets/shell.dart';
 
 class HomeScreen extends StatelessWidget {
   const HomeScreen({super.key, this.onOpenExplore});
@@ -28,20 +28,18 @@ class HomeScreen extends StatelessWidget {
     final p = context.pal;
     final user = context.select<AppState, AppUser?>((a) => a.user);
     final now = DateTime.now();
-    final header = Padding(
-      padding: const EdgeInsets.fromLTRB(20, 12, 20, 4),
-      child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-        Row(children: [
-          Expanded(child: Text(s.longDate(now), style: TextStyle(fontSize: 13, color: p.muted, fontWeight: FontWeight.w600))),
-          const LangToggle(),
-          const SizedBox(width: 8),
-          RoundButton(icon: const Icon(Icons.search_rounded), label: s.search, onTap: () => push(context, const SearchScreen())),
+    final header = Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+      const AppTopBar(),
+      Padding(
+        padding: const EdgeInsets.fromLTRB(20, 8, 20, 4),
+        child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+          Text(s.longDate(now), style: TextStyle(fontSize: 13, color: p.muted, fontWeight: FontWeight.w600)),
+          const SizedBox(height: 2),
+          Text(user == null ? s.greeting(now.hour) : '${s.greeting(now.hour)}, ${user.firstName}',
+              style: const TextStyle(fontSize: 22, fontWeight: FontWeight.w800, letterSpacing: -0.3)),
         ]),
-        const SizedBox(height: 4),
-        Text(user == null ? s.greeting(now.hour) : '${s.greeting(now.hour)}, ${user.firstName}',
-            style: const TextStyle(fontSize: 24, fontWeight: FontWeight.w800, letterSpacing: -0.4)),
-      ]),
-    );
+      ),
+    ]);
     return Scaffold(
       body: NightBackground(
         child: SafeArea(
